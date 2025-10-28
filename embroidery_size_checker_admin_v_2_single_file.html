@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embroidery Size Checker – Admin + Auto Search</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121923; --muted:#8ca0b6; --text:#e6edf3; --accent:#65b7ff; --chip:#1b2430;
+      --ok:#2ecc71; --danger:#ff6b6b; --warn:#f39c12;
+      --radius:16px; --radius-sm:10px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:linear-gradient(180deg,#0b0f14 0%, #0e1420 100%); color:var(--text)}
+    header{position:sticky; top:0; background:rgba(10,14,20,.7); backdrop-filter:blur(8px); border-bottom:1px solid #1f2a36; z-index:10}
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 16px}
+    h1{margin:0 0 6px; font-weight:800; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:.95rem}
+    .panel{background:#121923; border:1px solid #1f2a36; border-radius:var(--radius); padding:14px}
+
+    .searchbar{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center}
+    input[type="text"], input[type="password"]{width:100%; font-size:1.05rem; padding:12px 14px; background:#0f1622; color:var(--text); border:1px solid #233041; border-radius:var(--radius-sm); outline:0}
+    input[type="text"]:focus, input[type="password"]:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(100,180,255,.12)}
+    .btn{padding:10px 12px; background:#172538; color:#eaf6ff; border:1px solid #2b415c; border-radius:var(--radius-sm); cursor:pointer; font-weight:700}
+    .btn.ghost{background:#0f1622}
+    .btn.warn{background:#2a1f12; border-color:#6b4b14}
+    .btn.ok{background:#142a1f; border-color:#1b5f3a}
+
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .chip{padding:7px 10px; border:1px solid #293648; background:var(--chip); color:#cfe4ff; border-radius:999px; font-size:.84rem; cursor:pointer}
+    .chip.active{background:#1a2f44; border-color:#3e76a8}
+
+    .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .controls .group{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #28405a;background:#0f1c2d;border-radius:10px}
+    .controls select, .controls input[type="checkbox"]{background:#0f1622;color:#e6f2ff;border:1px solid #28405a;border-radius:8px;padding:6px 8px}
+
+    .results{margin-top:14px; display:grid; gap:14px}
+    .card{background:#0f1622; border:1px solid #223246; border-radius:var(--radius); padding:14px}
+    .card h3{margin:0 0 6px}
+    .meta{color:var(--muted); font-size:.9rem}
+
+    .table-wrap{max-height:60vh;overflow:auto;border-radius:12px}
+    table{width:max-content; min-width:100%; border-collapse:collapse; border:1px solid #223246}
+    thead{background:#132033}
+    th, td{padding:8px 10px; text-align:left; border-bottom:1px dashed #1e2d42; white-space:nowrap}
+    .sticky thead th{position:sticky; top:0; z-index:2}
+    .dense th,.dense td{padding:4px 6px; font-size:.9rem}
+    .pill{display:inline-block; padding:4px 8px; border:1px solid #28405a; border-radius:999px; background:#112036; font-size:.78rem}
+
+    .footer{margin:24px 0 40px; color:#86a1bd; font-size:.85rem}
+    .kbd{border:1px solid #3a4f6a; background:#0c1421; padding:2px 6px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+
+    /* Admin bar */
+    .adminbar{margin-top:14px; display:none}
+    .adminbar.active{display:block}
+    .admin-grid{display:grid; grid-template-columns:1fr; gap:10px}
+    .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    textarea{width:100%; min-height:160px; background:#0f1622; color:#e6edf3; border:1px solid #233041; border-radius:12px; padding:10px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+    select{background:#0f1622; color:#e6edf3; border:1px solid #233041; border-radius:10px; padding:8px}
+    .badge{display:inline-block; padding:2px 8px; border-radius:999px; background:#163524; color:#a8f0c1; border:1px solid #2a6b46; font-size:.8rem}
+    .danger{color:#ff9e9e}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Embroidery Size Checker</h1>
+      <div class="sub">Type or paste a product name (English). Auto-search enabled. Example: <span class="kbd">Embroidered Shorts for Women</span> <span id="modeBadge"></span></div>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="panel">
+      <div class="searchbar">
+        <input id="q" type="text" placeholder="Type or paste product name..." autocomplete="off" />
+        <div class="actions">
+          <button class="btn ghost" id="btnPaste" title="Paste from clipboard">Paste</button>
+          <button class="btn ghost" id="btnClear">Clear</button>
+          <button class="btn ghost" id="btnPrint">Print</button>
+        </div>
+      </div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="controls">
+        <div class="group">
+          <label><input type="checkbox" id="toggleMatrix" checked> Matrix view</label>
+          <label><input type="checkbox" id="toggleDense"> Dense</label>
+        </div>
+        <div class="group">
+          <button class="btn" id="btnLogin">Admin login</button>
+          <button class="btn ghost" id="btnLogout" style="display:none">Logout</button>
+        </div>
+      </div>
+
+      <!-- Admin Console -->
+      <div class="adminbar" id="adminBar">
+        <div class="card">
+          <h3>Admin Console <span class="badge">edit mode</span></h3>
+          <div class="admin-grid">
+            <div class="row">
+              <label>Product: <input id="adminProductName" type="text" placeholder="Exact product name" /></label>
+              <select id="adminExisting"></select>
+              <button class="btn" id="btnLoad">Load</button>
+              <button class="btn ok" id="btnSave">Save</button>
+              <button class="btn warn" id="btnDelete">Delete</button>
+            </div>
+            <div>
+<textarea id="adminEditor" placeholder="Enter lines: Position | Cost | Size | MaxHeight | MaxWidth
+Example:
+Middle | 4 | XS | 195 | 275
+Chest | 3 | S | 130 | 130
+Chest | 3 | M | 140 | 140
+..."></textarea>
+            </div>
+            <div class="sub">Hint: Each line = one size row. Same Position+Cost can repeat for multiple sizes. Numbers are in mm.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results" id="results"></div>
+      <div class="sub" style="margin-top:8px">Tips: <span class="kbd">Ctrl/⌘+V</span> to paste. Use chips to filter a single size in non-matrix view.</div>
+    </section>
+
+    <p class="footer">All measurements in millimetres (mm). Unauthenticated users can only search; editing requires admin login.</p>
+  </main>
+
+  <script>
+    // ===== Utilities =====
+    const mm = (x)=>x;
+    const norm = (s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    const titleCase = (s)=> (s||'').replace(/\s+/g,' ').trim().replace(/(^|\s)[a-z]/g, m=>m.toUpperCase());
+    const debounce=(fn,ms)=>{let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn.apply(this,a),ms)}};
+
+    function expandSizes(raw){
+      if (Array.isArray(raw)) return raw;
+      if (!raw || typeof raw !== 'string') return [String(raw||'All')];
+      const cleaned = raw.replaceAll('\u00a0',' ').replace(/\s+/g,' ');
+      return cleaned.replaceAll(' - ','-').replaceAll(' – ','-').replaceAll(',', '-')
+        .split(/-|\/|\u2013/).map(s=>s.trim()).filter(Boolean);
+    }
+    const makeRows = (sizes,h,w)=>expandSizes(sizes).map(sz=>({size:sz||'All', maxH:mm(h), maxW:mm(w)}));
+
+    // ===== Seed Data (built-in) =====
+    const group_COMMON_TOPS = [
+      {position:'Middle', cost:4, rows:[...makeRows(['XS'],195,275),...makeRows(['S'],195,285),...makeRows(['M'],195,295),...makeRows(['L'],195,295),...makeRows(['XL'],250,320),...makeRows(['2XL'],250,330),...makeRows(['3XL'],250,340),...makeRows(['4XL'],250,360),...makeRows(['5XL'],250,370)]},
+      {position:'Chest', cost:3, rows:[...makeRows(['XS'],120,120),...makeRows(['S'],130,130),...makeRows(['M'],140,140),...makeRows(['L'],150,150),...makeRows(['XL'],150,150),...makeRows(['2XL'],150,150),...makeRows(['3XL'],160,160),...makeRows(['4XL'],170,170),...makeRows(['5XL'],175,175)]},
+      {position:'Neck', cost:1, rows:[...makeRows(['XS'],120,120),...makeRows(['S'],130,130),...makeRows(['M'],135,135),...makeRows(['L'],135,135),...makeRows(['XL'],145,145),...makeRows(['2XL'],145,145),...makeRows(['3XL'],155,155),...makeRows(['4XL'],165,165),...makeRows(['5XL'],170,170)]},
+      {position:'Arm', cost:5, rows:[...makeRows(['All'],138,78)]},
+      {position:'Arm', cost:6, rows:[...makeRows(['All'],138,78)]},
+      {position:'Cuff', cost:8, rows:[...makeRows(['All'],38,78)]},
+      {position:'Cuff', cost:9, rows:[...makeRows(['All'],38,78)]},
+      {position:'Back', cost:'B', rows:[...makeRows(['XS'],195,275),...makeRows(['S'],195,285),...makeRows(['M'],195,295),...makeRows(['L'],195,295),...makeRows(['XL'],250,320),...makeRows(['2XL'],250,330),...makeRows(['3XL'],250,340),...makeRows(['4XL'],250,360),...makeRows(['5XL'],250,370)]},
+      {position:'Pocket', cost:'P', rows:[...makeRows(['All'],38,78)]},
+    ];
+    const group_LONG_SLEEVE_TEE = [
+      {position:'Front', cost:'F', rows:[...makeRows(['XS'],195,275),...makeRows(['S'],195,285),...makeRows(['M'],195,295),...makeRows(['L'],195,295),...makeRows(['XL'],250,320),...makeRows(['2XL'],250,330),...makeRows(['3XL'],250,340),...makeRows(['4XL'],250,360),...makeRows(['5XL'],250,370)]},
+      {position:'Chest', cost:3, rows:[...makeRows(['XS'],120,120),...makeRows(['S'],130,130),...makeRows(['M'],140,140),...makeRows(['L'],150,150),...makeRows(['XL'],150,150),...makeRows(['2XL'],150,150),...makeRows(['3XL'],160,160),...makeRows(['4XL'],170,170),...makeRows(['5XL'],175,175)]},
+      {position:'Neck', cost:1, rows:[...makeRows(['XS'],120,120),...makeRows(['S'],130,130),...makeRows(['M'],135,135),...makeRows(['L'],135,135),...makeRows(['XL'],145,145),...makeRows(['2XL'],145,145),...makeRows(['3XL'],155,155),...makeRows(['4XL'],165,165),...makeRows(['5XL'],170,170)]},
+      {position:'Sleeve', cost:5, rows:[...makeRows(['All'],138,78)]},
+      {position:'Sleeve', cost:6, rows:[...makeRows(['All'],138,78)]},
+    ];
+    const group_SLIT_SIDE = [
+      {position:'Front', cost:'F', rows:[...makeRows(['XS'],195,275),...makeRows(['S'],195,285),...makeRows(['M'],195,295),...makeRows(['L'],195,295),...makeRows(['XL'],250,320),...makeRows(['2XL'],250,330),...makeRows(['3XL'],250,340),...makeRows(['4XL'],250,360),...makeRows(['5XL'],250,370)]},
+      {position:'Slit Side', cost:'E', rows:[...makeRows(['All'],165,165)]},
+      {position:'Slit Side', cost:'S', rows:[...makeRows(['All'],165,165)]},
+      {position:'Sleeve', cost:5, rows:[...makeRows(['All'],138,78)]},
+      {position:'Sleeve', cost:6, rows:[...makeRows(['All'],138,78)]},
+    ];
+
+    const SEED = {
+      "Embroidered Hoodie": group_COMMON_TOPS,
+      "Embroidered T-Shirt": group_COMMON_TOPS,
+      "Embroidered Sweatshirt": group_COMMON_TOPS,
+      "Polo Shirt": group_COMMON_TOPS,
+      "Embroidered T-Shirt Pocket": group_COMMON_TOPS,
+      "Women Sweater": group_COMMON_TOPS,
+      "Adult Knit Sweater": group_COMMON_TOPS,
+      "Floral Embroidery": group_COMMON_TOPS,
+      "Applique Bow": group_COMMON_TOPS,
+      "Felt Embroidered Sweatshirt": group_COMMON_TOPS,
+      "Felt Embroidered Hoodie": group_COMMON_TOPS,
+      "Felt Embroidered T-shirt": group_COMMON_TOPS,
+      "Embroidered Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Hoodie V-Notch": group_COMMON_TOPS,
+      "Embroidered T-shirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Applique Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Quarter Zip Pullover Sweatshirt": group_COMMON_TOPS,
+      "Embroidered Applique Quater Zip Pullover Sweatshirt": group_COMMON_TOPS,
+      "Embroidered Faux Fur Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Sweatshirt MIX": group_COMMON_TOPS,
+      "Embroidered Faux Fur T-shirt V-Notch": group_COMMON_TOPS,
+
+      "Embroidered Long-Sleeve T-Shirt": group_LONG_SLEEVE_TEE,
+
+      "Slit Side Glitter Embroidery": group_SLIT_SIDE,
+      "Glitter": group_SLIT_SIDE,
+      "Hem Cut & Slit Side Glitter Embroidery": group_SLIT_SIDE,
+      "Slit Side Embroidery": group_SLIT_SIDE,
+      "Glitter Bow": group_SLIT_SIDE,
+      "Hem Cut & Slit Side Embroidery": group_SLIT_SIDE,
+
+      "Embroidered Shorts for Women": [
+        {position:'1 side', cost:4, rows:[
+          ...expandSizes('XS - S-M -L').map(sz=>({size:sz, maxH:mm(78), maxW:mm(137)})),
+          ...expandSizes('XL - 2XL-3XL').map(sz=>({size:sz, maxH:mm(198), maxW:mm(198)})),
+        ]},
+      ],
+
+      "Embroidered Sweatpants Add on": [
+        {position:'Thigh', cost:4, rows:[
+          ...expandSizes('XS - S-M -L').map(sz=>({size:sz, maxH:mm(73), maxW:mm(98)})),
+          ...expandSizes('XL - 2XL').map(sz=>({size:sz, maxH:mm(108), maxW:mm(118)})),
+          ...expandSizes('3XL-4XL').map(sz=>({size:sz, maxH:mm(118), maxW:mm(137)})),
+        ]},
+        {position:'Leg', cost:4, rows:[{size:'All', maxH:mm(160), maxW:mm(87)}]},
+      ],
+
+      "Cap": [
+        {position:'Front side', cost:'F', rows:[{size:'All', maxH:mm(59), maxW:mm(120)}]},
+        {position:'Back side', cost:'B', rows:[{size:'All', maxH:mm(38), maxW:mm(78)}]},
+        {position:'Left side', cost:'L', rows:[{size:'All', maxH:mm(38), maxW:mm(78)}]},
+        {position:'Right side', cost:'R', rows:[{size:'All', maxH:mm(38), maxW:mm(78)}]},
+      ],
+
+      "Embroidery Golf Towel": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(95), maxW:mm(95)}]},
+      ],
+
+      "Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Muslin Blanked Embroidered": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Baby Bib Muslin": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Bib Attachment": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Ruffle Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Heirloom Lace Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Ruffle Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Classic Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Heirloom Lace Baby Knit Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+      "Embroidered Ruffle Edge Blanket": [{position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(295)}]}],
+
+      "Baby Onesie": [
+        {position:'Middle', cost:4, rows:[
+          {size:'0-3M', maxH:mm(78), maxW:mm(137)},
+          {size:'6M', maxH:mm(78), maxW:mm(137)},
+          {size:'9M', maxH:mm(78), maxW:mm(137)},
+          {size:'12M', maxH:mm(150), maxW:mm(150)},
+          {size:'18M', maxH:mm(150), maxW:mm(150)},
+          {size:'24M', maxH:mm(170), maxW:mm(170)},
+        ]},
+      ],
+
+      "Embroidered Kids Knit Sweater": [
+        {position:'Middle', cost:4, rows:[
+          {size:'0-3 months', maxH:mm(145), maxW:mm(165)},
+          {size:'3-6 months', maxH:mm(145), maxW:mm(165)},
+          {size:'9-12 months', maxH:mm(145), maxW:mm(170)},
+          {size:'12-18 months', maxH:mm(145), maxW:mm(195)},
+          {size:'18-24m or 2T', maxH:mm(145), maxW:mm(195)},
+        ]},
+      ],
+
+      "Embroidered Baby Girl Romper": [
+        {position:'1 side', cost:4, rows:[
+          {size:'0-3M', maxH:mm(70), maxW:mm(80)},
+          {size:'3-6M', maxH:mm(75), maxW:mm(85)},
+          {size:'6-12-18M', maxH:mm(75), maxW:mm(95)},
+        ]},
+      ],
+
+      "Embroidered Classic Baby Sweater": [
+        {position:'1 side', cost:4, rows:[
+          {size:'0-3 months', maxH:mm(190), maxW:mm(180)},
+          {size:'3-6 months', maxH:mm(190), maxW:mm(180)},
+          {size:'6-9 months', maxH:mm(195), maxW:mm(195)},
+          {size:'9-12 months', maxH:mm(195), maxW:mm(195)},
+          {size:'12-18 months', maxH:mm(195), maxW:mm(195)},
+          {size:'18-24 months', maxH:mm(195), maxW:mm(195)},
+        ]},
+      ],
+
+      "Ruffle Baby Girl Knit Romper": [
+        {position:'1 side', cost:4, rows:[
+          {size:'Newborn', maxH:mm(118), maxW:mm(148)},
+          {size:'0-3 Months', maxH:mm(128), maxW:mm(162)},
+          {size:'3-6 Months', maxH:mm(143), maxW:mm(178)},
+        ]},
+      ],
+      
+      "Embroidered Baby Boy Knit Romper": [
+        {position:'1 side', cost:4, rows:[
+          {size:'Newborn', maxH:mm(118), maxW:mm(148)},
+          {size:'0-3 Months', maxH:mm(128), maxW:mm(162)},
+          {size:'3-6 Months', maxH:mm(143), maxW:mm(178)},
+        ]},
+      ],
+
+      "Body Suit Embroidered": [
+        {position:'Middle', cost:4, rows:[
+          {size:'Premie', maxH:mm(88), maxW:mm(98)},
+          {size:'Newborn', maxH:mm(88), maxW:mm(108)},
+          {size:'0-3 months', maxH:mm(88), maxW:mm(118)},
+          {size:'3-6 months', maxH:mm(108), maxW:mm(128)},
+          {size:'6-12 months', maxH:mm(118), maxW:mm(138)},
+          {size:'12-18 months', maxH:mm(128), maxW:mm(148)},
+          {size:'18-24 months', maxH:mm(128), maxW:mm(168)},
+        ]},
+        {position:'Chest', cost:3, rows:[
+          {size:'Premie', maxH:mm(33), maxW:mm(33)},
+          {size:'Newborn', maxH:mm(33), maxW:mm(33)},
+          {size:'0-3 months', maxH:mm(38), maxW:mm(38)},
+          {size:'3-6 months', maxH:mm(43), maxW:mm(43)},
+          {size:'6-12 months', maxH:mm(43), maxW:mm(48)},
+          {size:'12-18 months', maxH:mm(48), maxW:mm(58)},
+          {size:'18-24 months', maxH:mm(58), maxW:mm(68)},
+        ]},
+      ],
+
+      "Baby Wool Bodysuit": [
+        {position:'1 side', cost:4, rows:[
+          {size:'0-3M', maxH:mm(160), maxW:mm(160)},
+          {size:'3-6M', maxH:mm(160), maxW:mm(160)},
+          {size:'6-9M', maxH:mm(160), maxW:mm(160)},
+          {size:'9-12M', maxH:mm(180), maxW:mm(180)},
+          {size:'12-18M', maxH:mm(180), maxW:mm(180)},
+          {size:'18-24M', maxH:mm(180), maxW:mm(180)},
+        ]},
+      ],
+
+      "Embroidered Premium Burp Cloth": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(165), maxW:mm(165)}]},
+      ],
+
+      "Denim Jacket": [
+        {position:'Back', cost:'B', rows:[
+          ...expandSizes('XS - S-M -L').map(sz=>({size:sz, maxH:mm(165), maxW:mm(265)})),
+          ...expandSizes('XL - 2XL').map(sz=>({size:sz, maxH:mm(175), maxW:mm(275)})),
+          {size:'3Xl', maxH:mm(185), maxW:mm(285)},
+          ...expandSizes('4XL-5XL').map(sz=>({size:sz, maxH:mm(195), maxW:mm(295)})),
+        ]},
+        {position:'Collar', cost:11, rows:[{size:'All', maxH:mm(33), maxW:mm(195)}]},
+        {position:'Shoulder', cost:12, rows:[
+          ...expandSizes('S-M-L-XL-2XL').map(sz=>({size:sz, maxH:mm(78), maxW:mm(195)})),
+          ...expandSizes('3XL-4XL').map(sz=>({size:sz, maxH:mm(58), maxW:mm(245)})),
+        ]},
+        {position:'Arm', cost:5, rows:[{size:'All', maxH:mm(38), maxW:mm(78)}]},
+        {position:'Arm', cost:6, rows:[{size:'All', maxH:mm(38), maxW:mm(78)}]},
+      ],
+
+      "Embroidered Linen Apron": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(245)}]},
+      ],
+      "Embroidered Linen Apron With Two Pockets Middle-Pocket": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(195), maxW:mm(245)}]},
+        {position:'Pocket', cost:5, rows:[...expandSizes('S - M').map(sz=>({size:sz, maxH:mm(95), maxW:mm(70)})), {size:'L', maxH:mm(125), maxW:mm(70)}]},
+        {position:'Pocket', cost:6, rows:[...expandSizes('S - M').map(sz=>({size:sz, maxH:mm(95), maxW:mm(70)})), {size:'L', maxH:mm(125), maxW:mm(70)}]},
+      ],
+
+      "Embroidered Sleep Bag": [
+        {position:'Middle', cost:4, rows:[
+          ...expandSizes('XS - S - M').map(sz=>({size:sz, maxH:mm(70), maxW:mm(130)})),
+          ...expandSizes('L - XL').map(sz=>({size:sz, maxH:mm(82), maxW:mm(150)})),
+        ]}
+      ],
+
+      "Baby Knotted Cap embroidered": [
+        {position:'Middle', cost:4, rows:[
+          {size:'0-3 months', maxH:mm(28), maxW:mm(133)},
+          {size:'3-6 months', maxH:mm(28), maxW:mm(133)},
+          {size:'6-12 months', maxH:mm(28), maxW:mm(133)},
+          {size:'12-18 months', maxH:mm(28), maxW:mm(133)},
+          {size:'18-24 months', maxH:mm(28), maxW:mm(133)},
+        ]},
+      ],
+
+      "Baby Bow Embroidered": [
+        {position:'Middle', cost:4, rows:[
+          {size:'0-3 months', maxH:mm(28), maxW:mm(133)},
+          {size:'3-6 months', maxH:mm(28), maxW:mm(133)},
+          {size:'6-12 months', maxH:mm(28), maxW:mm(133)},
+          {size:'12-18 months', maxH:mm(28), maxW:mm(133)},
+          {size:'18-24 months', maxH:mm(28), maxW:mm(133)},
+          {size:'1-2 years', maxH:mm(38), maxW:mm(133)},
+          {size:'2-3 years', maxH:mm(38), maxW:mm(133)},
+          {size:'3-4 years', maxH:mm(38), maxW:mm(133)},
+        ]},
+      ],
+
+      "Embroidered Canvas Strap Tote Bag": [
+        {position:'Middle', cost:4, rows:[
+          {size:'S', maxH:mm(38), maxW:mm(115)},
+          {size:'M', maxH:mm(68), maxW:mm(155)},
+          {size:'L', maxH:mm(175), maxW:mm(105)},
+        ]}
+      ],
+
+      "Christmas Stocking": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(78), maxW:mm(135)}]},
+      ],
+
+      "Embroidered Dog Bandana Attachment": [
+        {position:'Middle', cost:4, rows:[{size:'S', maxH:mm(125), maxW:mm(145)}, {size:'L', maxH:mm(140), maxW:mm(170)}]},
+      ],
+      "Embroidered Dog Bandana": [
+        {position:'Middle', cost:4, rows:[{size:'S', maxH:mm(125), maxW:mm(145)}, {size:'L', maxH:mm(140), maxW:mm(170)}]},
+        {position:'1 side', cost:4, rows:[
+          ...expandSizes('XS - S-M -L').map(sz=>({size:sz, maxH:mm(195), maxW:mm(295)})),
+          ...expandSizes('XL - 2XL -3XL').map(sz=>({size:sz, maxH:mm(250), maxW:mm(325)})),
+          ...expandSizes('4XL đến 5XL').map(sz=>({size:sz, maxH:mm(250), maxW:mm(350)})),
+        ]}
+      ],
+
+      "Socks Embroider": [
+        {position:'Middle', cost:4, rows:[{size:'All', maxH:mm(38), maxW:mm(48)}]},
+      ],
+    };
+
+    const LS_KEY = 'embroidery_data_v1';
+    const LS_ADMIN = 'embroidery_admin_logged';
+
+    function loadData(){
+      const s = localStorage.getItem(LS_KEY);
+      try{ return s? JSON.parse(s) : JSON.parse(JSON.stringify(SEED)); }
+      catch(e){ console.warn('Bad data in LS, reset.'); return JSON.parse(JSON.stringify(SEED)); }
+    }
+    function saveData(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+
+    let DATA = loadData();
+
+    // ===== Auth =====
+    function isLogged(){ return localStorage.getItem(LS_ADMIN)==='1'; }
+    function login(u,p){ if(u==='1' && p==='1'){ localStorage.setItem(LS_ADMIN,'1'); return true;} return false; }
+    function logout(){ localStorage.removeItem(LS_ADMIN); }
+
+    // ===== UI Elements =====
+    const elQ=document.getElementById('q');
+    const elResults=document.getElementById('results');
+    const elChips=document.getElementById('chips');
+    const elModeBadge=document.getElementById('modeBadge');
+
+    const elAdminBar=document.getElementById('adminBar');
+    const elAdminName=document.getElementById('adminProductName');
+    const elAdminExisting=document.getElementById('adminExisting');
+    const elAdminEditor=document.getElementById('adminEditor');
+
+    function refreshAuthUI(){
+      const logged=isLogged();
+      elAdminBar.classList.toggle('active', logged);
+      document.getElementById('btnLogout').style.display = logged? 'inline-block':'none';
+      document.getElementById('btnLogin').style.display = logged? 'none':'inline-block';
+      elModeBadge.innerHTML = logged? '· <span class="badge">Admin</span>' : '';
+      // update product dropdown
+      elAdminExisting.innerHTML = Object.keys(DATA).sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${n}">${n}</option>`).join('');
+    }
+
+    // Simple login prompt
+    document.getElementById('btnLogin').addEventListener('click',()=>{
+      const u = prompt('Username:');
+      const p = prompt('Password:');
+      if(login(u||'', p||'')) refreshAuthUI(); else alert('Wrong credentials');
+    });
+    document.getElementById('btnLogout').addEventListener('click',()=>{ logout(); refreshAuthUI(); });
+
+    // ===== Search / Render =====
+    function keyIndex(){ return Object.keys(DATA).map(k=>({key:k, norm:norm(k)})); }
+
+    function fuzzyFind(query){
+      const n = norm(query); if(!n) return [];
+      const idx = keyIndex();
+      let scored = idx.map(({key, norm:kn})=>{
+        let score=0;
+        if(kn===n) score=100; else if(kn.includes(n)) score=80 - Math.max(0, kn.length-n.length);
+        else { const qTokens=n.split(' '), kTokens=kn.split(' '); const overlap=qTokens.filter(t=>kTokens.includes(t)).length; score=overlap*10; }
+        return {key, score};
+      }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+      return scored.slice(0,8).map(x=>x.key);
+    }
+
+    function chipEl(label){
+      const c=document.createElement('button'); c.className='chip'; c.textContent=label; c.dataset.size=label;
+      c.addEventListener('click',()=>{
+        document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+        filterRows(label);
+      });
+      return c;
+    }
+
+    function renderChips(sizes){
+      elChips.innerHTML=''; if(!sizes.length) return;
+      const all=chipEl('All'); all.classList.add('active'); elChips.appendChild(all);
+      sizes.sort((a,b)=>String(a).localeCompare(String(b), undefined, {numeric:true})).forEach(s=>elChips.appendChild(chipEl(s)));
+    }
+
+    function filterRows(size){
+      document.querySelectorAll('tbody tr').forEach(tr=>{ tr.style.display = (size==='All' || tr.dataset.size===size)?'':'none'; });
+    }
+
+    function render(productName, rows){
+      elResults.innerHTML='';
+      const header=document.createElement('div'); header.className='card';
+      header.innerHTML = `<h3>${productName}</h3><div class="meta">Positions & maximum embroidery areas (mm)</div>`;
+      elResults.appendChild(header);
+
+      // collect unique sizes
+      const sizeSet=new Set(); rows.forEach(b=>b.rows.forEach(r=>sizeSet.add(r.size))); const sizes=[...sizeSet];
+      renderChips(sizes);
+
+      const useMatrix=document.getElementById('toggleMatrix').checked;
+      const dense=document.getElementById('toggleDense').checked;
+
+      if(useMatrix){
+        const card=document.createElement('div'); card.className='card';
+        const wrap=document.createElement('div'); wrap.className='table-wrap';
+        const tbl=document.createElement('table'); tbl.className='sticky'; if(dense) tbl.classList.add('dense');
+        const thead=document.createElement('thead'); const hr=document.createElement('tr');
+        hr.innerHTML = `<th>Position</th><th>Cost</th>` + sizes.map(s=>`<th>${s}</th>`).join(''); thead.appendChild(hr); tbl.appendChild(thead);
+        const tb=document.createElement('tbody');
+        rows.forEach(block=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML = `<td>${block.position}</td><td>${block.cost}</td>` + sizes.map(s=>{
+            const m=block.rows.find(r=>r.size===s); return `<td>${m? `${m.maxH}×${m.maxW}`:'–'}</td>`;
+          }).join('');
+          tb.appendChild(tr);
+        });
+        tbl.appendChild(tb); wrap.appendChild(tbl); card.appendChild(wrap); elResults.appendChild(card);
+        return;
+      }
+
+      // Non-matrix: each position -> table of rows
+      rows.forEach(block=>{
+        const card=document.createElement('div'); card.className='card';
+        card.innerHTML = `<div class="meta">${block.position} <span class="pill">Cost: ${block.cost}</span></div>`;
+        const wrap=document.createElement('div'); wrap.className='table-wrap';
+        const tbl=document.createElement('table'); tbl.className='sticky'; if(dense) tbl.classList.add('dense');
+        tbl.innerHTML = `<thead><tr><th>Size</th><th>Max Height (mm)</th><th>Max Width (mm)</th></tr></thead>`;
+        const tb=document.createElement('tbody');
+        block.rows.forEach(r=>{ const tr=document.createElement('tr'); tr.dataset.size=r.size; tr.innerHTML = `<td>${r.size}</td><td>${r.maxH}</td><td>${r.maxW}</td>`; tb.appendChild(tr); });
+        tbl.appendChild(tb); wrap.appendChild(tbl); card.appendChild(wrap); elResults.appendChild(card);
+      });
+    }
+
+    function doSearch(){
+      const q=elQ.value.trim();
+      if(!q){ elResults.innerHTML='<div class="meta">Type or paste a product name.</div>'; elChips.innerHTML=''; return; }
+      const exact=Object.keys(DATA).find(k=>norm(k)===norm(q));
+      const cands = exact? [exact] : fuzzyFind(q);
+      const chosen = exact || cands[0];
+      if(!chosen){ elResults.innerHTML='<div class="meta danger">No match found.</div>'; elChips.innerHTML=''; return; }
+      render(chosen, DATA[chosen]);
+    }
+
+    // ===== Admin: parse/save =====
+    function parseEditor(text){
+      // Lines: Position | Cost | Size | H | W
+      const lines=(text||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const buckets=new Map(); // key: position||cost -> {position,cost, rows:[]}
+      for(const line of lines){
+        const parts=line.split('|').map(x=>x.trim());
+        if(parts.length<5) continue;
+        const [pos, costStr, size, hStr, wStr]=parts;
+        const cost = (isNaN(Number(costStr))? costStr : (Number(costStr)||costStr));
+        const maxH = Number(hStr); const maxW = Number(wStr);
+        if(!pos || !size || !maxH || !maxW) continue;
+        const key=`${pos}__${cost}`;
+        if(!buckets.has(key)) buckets.set(key, {position:pos, cost:cost, rows:[]});
+        buckets.get(key).rows.push({size, maxH, maxW});
+      }
+      return [...buckets.values()];
+    }
+
+    function loadToEditor(name){
+      const blocks = DATA[name]; if(!blocks){ elAdminEditor.value=''; return; }
+      const lines=[];
+      blocks.forEach(b=> b.rows.forEach(r=> lines.push(`${b.position} | ${b.cost} | ${r.size} | ${r.maxH} | ${r.maxW}`)) );
+      elAdminEditor.value = lines.join('\n');
+    }
+
+    document.getElementById('btnLoad').addEventListener('click',()=>{
+      if(!isLogged()) return alert('Login required');
+      const sel=elAdminExisting.value; elAdminName.value=sel; loadToEditor(sel);
+    });
+
+    document.getElementById('btnSave').addEventListener('click',()=>{
+      if(!isLogged()) return alert('Login required');
+      const name=(elAdminName.value||'').trim(); if(!name) return alert('Product name required');
+      const blocks=parseEditor(elAdminEditor.value);
+      if(!blocks.length) return alert('Nothing to save. Fill some lines.');
+      DATA[name]=blocks; saveData(DATA); refreshAuthUI(); alert('Saved.'); doSearch();
+    });
+
+    document.getElementById('btnDelete').addEventListener('click',()=>{
+      if(!isLogged()) return alert('Login required');
+      const name=(elAdminName.value||'').trim() || elAdminExisting.value;
+      if(!name || !DATA[name]) return alert('Choose a valid product');
+      if(confirm(`Delete product "${name}"?`)) { delete DATA[name]; saveData(DATA); refreshAuthUI(); elAdminEditor.value=''; elAdminName.value=''; alert('Deleted.'); doSearch(); }
+    });
+
+    // ===== Wire up search & clipboard =====
+    document.getElementById('btnPaste').addEventListener('click', async()=>{
+      try{ const t=await navigator.clipboard.readText(); if(t){ elQ.value=t.trim(); doSearch(); } }
+      catch(e){ alert('Clipboard permission denied. Use Ctrl/⌘+V.'); }
+    });
+    document.getElementById('btnClear').addEventListener('click',()=>{ elQ.value=''; elResults.innerHTML=''; elChips.innerHTML=''; elQ.focus(); });
+    document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+    document.getElementById('toggleMatrix').addEventListener('change', doSearch);
+    document.getElementById('toggleDense').addEventListener('change', doSearch);
+
+    elQ.addEventListener('input', debounce(doSearch, 250));
+    elQ.addEventListener('paste', ()=> setTimeout(doSearch, 0));
+
+    // Init
+    refreshAuthUI();
+    elQ.value='Embroidered Shorts for Women';
+    doSearch();
+  </script>
+</body>
+</html>
