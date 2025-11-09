@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TX Workspace</title>
+  <style>
+    :root {
+      --bg1: #020617;
+      --bg2: #020617;
+      --glass: rgba(15, 23, 42, 0.92);
+      --border: rgba(148, 163, 184, 0.28);
+      --accent: #7f5af0;
+      --accent-soft: rgba(127, 90, 240, 0.16);
+      --accent2: #2cb67d;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --radius-lg: 18px;
+      --radius-sm: 10px;
+      --transition: 0.25s ease;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 45%, #000 100%);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 14px;
+    }
+
+    /* HEADER */
+    header {
+      border-radius: var(--radius-lg);
+      background: linear-gradient(120deg, rgba(15,23,42,0.97), rgba(20,20,34,0.97));
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 12px 35px rgba(15,23,42,0.9);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #a5b4fc 0, #4c1d95 35%, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #e5e7eb;
+      box-shadow:
+        0 0 0 1px rgba(129, 140, 248, 0.7),
+        0 0 35px rgba(79, 70, 229, 0.7);
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 180px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-lights {
+      display: flex;
+      gap: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.9);
+    }
+
+    .light {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      box-shadow: 0 0 8px rgba(15,23,42,0.9);
+    }
+
+    .light.green {
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.9);
+    }
+
+    .light.yellow {
+      background: #eab308;
+      box-shadow: 0 0 8px rgba(234,179,8,0.9);
+    }
+
+    .light.red {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239,68,68,0.9);
+    }
+
+    .status-text {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.95);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .badge strong { color: var(--accent2); }
+
+    /* MAIN LAYOUT */
+    .layout-main {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      border-radius: var(--radius-lg);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
+    }
+
+    .sidebar-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 0 6px;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.08), rgba(15,23,42,0.96));
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      outline: none;
+      border: 1px solid rgba(148,163,184,0.22);
+      transition: var(--transition);
+    }
+
+    .nav-btn span.icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, rgba(248,250,252,0.9), rgba(148,163,184,0.7));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #020617;
+    }
+
+    .nav-btn strong {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .nav-btn small {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: block;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(209,213,219,0.7);
+      box-shadow: 0 8px 26px rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--accent-soft), rgba(15,23,42,0.98));
+      border-color: rgba(129,140,248,0.9);
+      box-shadow: 0 10px 30px rgba(88,81,219,0.8);
+      color: #f9fafb;
+    }
+
+    .nav-btn.active span.icon {
+      background: radial-gradient(circle at 30% 20%, #f4f4ff, #4f46e5);
+      color: #0b1020;
+    }
+
+    .side-note {
+      margin-top: auto;
+      font-size: 0.76rem;
+      color: var(--muted);
+      padding: 6px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.18), rgba(15,23,42,0.96));
+      border: 1px dashed rgba(148,163,184,0.4);
+    }
+
+    .side-note b { color: #e5e7eb; }
+
+    .side-note ol {
+      margin: 4px 0 0;
+      padding-left: 18px;
+    }
+
+    .side-note li {
+      margin-bottom: 2px;
+    }
+
+    /* MAIN PANEL */
+    .main-panel {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.96), rgba(15,23,42,1));
+      border: 1px solid var(--border);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.95);
+      overflow: hidden;
+    }
+
+    .main-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(55,65,81,0.95);
+      background: radial-gradient(circle at top left, rgba(31,41,55,0.9), rgba(15,23,42,1));
+    }
+
+    .main-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .main-header p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .main-header-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: var(--muted);
+      background: rgba(15,23,42,0.96);
+      white-space: nowrap;
+    }
+
+    .tag.state {
+      border-color: rgba(34,197,94,0.7);
+      color: #bbf7d0;
+    }
+
+    .tag.mode {
+      border-style: dashed;
+      border-color: rgba(148,163,184,0.6);
+    }
+
+    iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: #020617;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 6px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer span { opacity: 0.9; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .layout-main {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        order: 2;
+      }
+      .main-panel {
+        order: 1;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-right {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app-shell { padding: 10px; }
+      .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .main-header-tags {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- HEADER -->
+    <header>
+      <div class="brand">
+        <div class="brand-logo">Tx</div>
+        <div class="brand-text">
+          <h1>TX Workspace</h1>
+          <p>Một cửa cho tất cả các công cụ làm việc hàng ngày.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-row">
+          <div class="status-lights" aria-hidden="true">
+            <div class="light green" title="Hệ thống sẵn sàng"></div>
+            <div class="light yellow" title="Đang tải nội dung"></div>
+            <div class="light red" title="Khu vực dự phòng"></div>
+          </div>
+          <span class="status-text">4 khu vực công cụ • Giao diện một trang.</span>
+        </div>
+        <div class="badge">Chế độ sử dụng: <strong>Cá nhân / Nội bộ</strong></div>
+      </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout-main">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-title">Chọn khu vực công cụ</div>
+        <div class="nav-list">
+          <button class="nav-btn active" data-target="code1.html">
+            <span class="icon">1</span>
+            <div>
+              <strong>Trung tâm dữ liệu & tài liệu</strong>
+              <small>Xem và xử lý bảng dữ liệu, nội dung văn bản, hình ảnh phục vụ thiết kế.</small>
+            </div>
+          </button>
+
+          <button class="nav-btn" data-target="code2.html">
+            <span class="icon">2</span>
+            <div>
+              <strong>Trung tâm kích thước & sản phẩm</strong>
+              <small>Tra cứu thông tin sản phẩm, kích thước, thông số phục vụ sản xuất.</small>
+            </div>
+          </button>
+
+          <button class="nav-btn" data-target="code3.html">
+            <span class="icon">3</span>
+            <div>
+              <strong>Khu vực mở rộng 1</strong>
+              <small>Dành cho các công cụ bổ sung khác (quản lý đơn, QC, kho…).</small>
+            </div>
+          </button>
+
+          <button class="nav-btn" data-target="code4.html">
+            <span class="icon">4</span>
+            <div>
+              <strong>Khu vực mở rộng 2</strong>
+              <small>Dự phòng cho các tính năng mới trong tương lai.</small>
+            </div>
+          </button>
+        </div>
+
+        <div class="side-note">
+          <b>Hướng dẫn nhanh cho người dùng:</b>
+          <ol>
+            <li>Chọn khu vực phù hợp với công việc bạn muốn thực hiện ở bên trái.</li>
+            <li>Công cụ sẽ mở ngay trong khung lớn bên phải, không cần chuyển trang.</li>
+            <li>Nếu nội dung không hiển thị, hãy liên hệ quản trị viên để kiểm tra cấu hình.</li>
+          </ol>
+        </div>
+      </aside>
+
+      <!-- MAIN PANEL -->
+      <section class="main-panel">
+        <div class="main-header">
+          <div>
+            <h2 id="panelTitle">Trung tâm dữ liệu & tài liệu</h2>
+            <p id="panelDesc">Khu vực tổng hợp để xem, lọc và xử lý thông tin phục vụ thiết kế và đối soát.</p>
+          </div>
+          <div class="main-header-tags">
+            <span class="tag state" id="stateTag">Trạng thái: đang hiển thị</span>
+            <span class="tag mode">Chế độ xem: toàn màn hình</span>
+          </div>
+        </div>
+        <iframe id="appFrame" src="code1.html" title="TX Tool Frame" loading="eager"></iframe>
+      </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <span>TX Workspace giúp gom tất cả công cụ của bạn vào một giao diện thống nhất, dễ hiểu và dễ sử dụng cho mọi người.</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const frame = document.getElementById('appFrame');
+      const buttons = document.querySelectorAll('.nav-btn');
+      const title = document.getElementById('panelTitle');
+      const desc = document.getElementById('panelDesc');
+      const stateTag = document.getElementById('stateTag');
+
+      const meta = {
+        "code1.html": {
+          title: "Trung tâm dữ liệu & tài liệu",
+          desc: "Khu vực tổng hợp để xem, lọc và xử lý thông tin phục vụ thiết kế và đối soát.",
+          state: "đang hiển thị"
+        },
+        "code2.html": {
+          title: "Trung tâm kích thước & sản phẩm",
+          desc: "Không gian làm việc dành cho các công cụ tra cứu sản phẩm, kích thước và thông số sản xuất.",
+          state: "đang hiển thị"
+        },
+        "code3.html": {
+          title: "Khu vực mở rộng 1",
+          desc: "Chỗ trống dành cho các công cụ nâng cao khác. Khi được cấu hình, khu vực này sẽ hoạt động như một ứng dụng độc lập.",
+          state: "chờ cấu hình"
+        },
+        "code4.html": {
+          title: "Khu vực mở rộng 2",
+          desc: "Khu vực dự phòng để bạn thêm những công cụ mới trong tương lai khi cần.",
+          state: "chờ cấu hình"
+        }
+      };
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          frame.src = target;
+
+          if (meta[target]) {
+            title.textContent = meta[target].title;
+            desc.textContent = meta[target].desc;
+            stateTag.textContent = "Trạng thái: " + meta[target].state;
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
