@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hic Hic TX - Web Version Optimized</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root{--bg-dark:#16161a;--glass-bg:rgba(22,22,26,0.6);--glass-border:rgba(255,255,255,0.08);--text-primary:#fffffe;--text-secondary:#94a1b2;--accent-color:#7f5af0;--accent-secondary:#2cb67d;--error-color:#ef4565;--transition:0.3s cubic-bezier(0.25,0.8,0.25,1)}body{font-family:'Inter',sans-serif;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);margin:0;width:100vw;height:100vh;color:var(--text-primary);overflow:hidden}.wrapper{display:flex;height:100%;background-color:rgba(22,22,26,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.sidebar{width:240px;background:var(--glass-bg);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;padding:15px 10px}.sidebar-header{padding:10px 15px 20px;text-align:center}.sidebar-header h3{margin:0;font-size:1.6em;font-weight:700;color:var(--accent-color)}.nav-group{display:flex;flex-direction:column;gap:5px}.nav-item{display:flex;align-items:center;padding:12px 15px;color:var(--text-secondary);text-decoration:none;font-weight:500;transition:all .2s ease;border-radius:8px;cursor:pointer}.nav-item:hover{color:var(--text-primary);background-color:rgba(255,255,255,0.05)}.nav-item.active{color:var(--text-primary);background-color:var(--accent-color);box-shadow:0 4px 15px rgba(127,90,240,0.4)}.nav-item svg{width:20px;height:20px;margin-right:15px;fill:currentColor;flex-shrink:0}.content{flex-grow:1;overflow-y:auto;padding:25px}.tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .4s ease-out forwards}@keyframes fadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}.card{background:rgba(0,0,0,0.2);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid var(--glass-border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);padding:30px}h2{margin-top:0;font-size:1.8em;padding-bottom:15px;margin-bottom:20px;color:var(--text-primary)}textarea,input[type=text],.input-file{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:8px;font-size:1em;color:var(--text-primary);box-sizing:border-box;margin-bottom:15px;transition:all .2s ease}textarea:focus,input[type=text]:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(127,90,240,0.4)}.button{background:linear-gradient(45deg,rgba(255,255,255,0.1),rgba(255,255,255,0.15));border:1px solid var(--glass-border);color:var(--text-primary);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:.9em;font-weight:600;transition:all .2s ease}.button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}.button:active{transform:translateY(0)}.button.button-primary{background:var(--accent-color);border:none;color:white}.button.button-primary:hover{background-color:#9a7bff;box-shadow:0 8px 25px rgba(127,90,240,0.5)}.button.button-danger{background:var(--error-color);border:none}.button-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}.downloader-options{display:grid;grid-template-columns:1fr;gap:15px;margin-top:15px}.log-area{margin-top:20px;height:250px;background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;font-family:monospace;font-size:.9em;overflow-y:auto;border:1px solid var(--glass-border)}.log-area .log-item{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05)}.log-area .log-item.error{color:var(--error-color)}.log-area .log-item.success{color:var(--accent-secondary)}.progress-container{position:relative;width:100%;height:6px;background:rgba(0,0,0,0.3);border-radius:3px;margin:10px 0;overflow:hidden}.progress-fill{background:linear-gradient(90deg, var(--accent-color), var(--accent-secondary));height:100%;border-radius:3px;transition:width 0.4s cubic-bezier(0.4, 0, 0.2, 1);width:0%;position:relative;overflow:hidden}.progress-fill::after{content:'';position:absolute;top:0;left:0;bottom:0;right:0;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);transform:translateX(-100%);animation:shimmer 1.5s infinite}@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}.viewer-grid{display:grid;grid-template-columns:250px 1fr;gap:25px}.main-img{width:100%;border-radius:8px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.2)}.data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:8px;text-align:left;border-bottom:1px solid var(--glass-border)}.data-table th{font-weight:600;width:100px;color:var(--accent-secondary)}.screenshot-result{margin-top:20px;text-align:center}.screenshot-result img{max-width:100%;border-radius:8px;border:1px solid var(--glass-border);margin-bottom:15px}.extractor-results{margin-top:20px;max-height:300px;overflow-y:auto}.extractor-results h4{color:var(--accent-secondary);border-bottom:1px solid var(--glass-border);padding-bottom:5px;margin-top:15px}.extractor-results ul{list-style:none;padding:0}.extractor-results li a{color:var(--text-primary);text-decoration:none;display:block;padding:5px;border-radius:4px;transition:background-color .2s ease}.extractor-results li a:hover{background-color:rgba(255,255,255,0.05);text-decoration:underline}.donate-card{text-align:center}.qr-donate-img{width:200px;height:200px;border-radius:12px;margin:20px auto;background:white;padding:10px}.donate-info{font-weight:600;line-height:1.6;margin-top:10px}.links-section{margin-top:10px}.links-section a{margin-right:10px;color:var(--accent-color);text-decoration:none}.links-section a:hover{text-decoration:underline}.row-info{text-align:center;font-style:italic;color:var(--text-secondary);margin-top:10px}.navigation-buttons{display:flex;justify-content:space-between;gap:10px;margin-top:15px}.description{margin-bottom:15px;font-style:italic;color:var(--text-secondary)}.copy-history{ max-height:200px; overflow-y:auto; margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; }.copy-item{ padding:5px; border-bottom:1px solid var(--glass-border); cursor:pointer; }.copy-item:hover{ background:rgba(255,255,255,0.05); }.copy-item:last-child{ border-bottom:none; }@media (max-width:768px){.sidebar{ width:60px; }.nav-item span{ display:none; }.content{ padding:15px; }}
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>Hic Hic TX</h3>
+            </div>
+            <div class="nav-group">
+                <a href="#" class="nav-item active" data-tab="textTools" title="Xử lý Text"><svg viewBox="0 0 24 24"><path d="M18.5,4L19.66,8.35L18.7,8.61C18.25,7.74 17.79,6.87 17.32,6C16.84,5.13 16.36,4.26 15.88,3.39L15,2H10V3H13.55C13.81,3.73 14.07,4.46 14.33,5.19C14.84,6.63 15.36,8.08 15.88,9.52L14.05,10.12C13.5,8.68 12.96,7.23 12.43,5.79C12.17,5.06 11.91,4.33 11.65,3.61L12.55,3H10V2L5,2V3H7.5L5.45,9.58C5.23,10.21 5,10.83 4.79,11.45C4.33,12.63 3.87,13.82 3.41,15H5.34L6.96,10.33L9.04,15H11.04L8.96,10.33L10.59,6.22C11.13,7.66 11.68,9.11 12.22,10.55L11,11V22H13V11L13.5,9.66L15.27,15H17.27L13.79,4.41C13.5,3.61 13.22,2.8 12.93,2H15L15.88,3.39C16.36,4.26 16.84,5.13 17.32,6C17.79,6.87 18.25,7.74 18.7,8.61L17.8,8.88L18.96,13.23H20.8L22,8.88L21.1,8.61C21.55,7.74 22,6.87 22.47,6C22.96,5.13 23.43,4.26 23.92,3.39L24.8,2H20.25L18.5,4Z"/></svg><span>Xử lý Text</span></a>
+                <a href="#" class="nav-item" data-tab="downloader" title="Tải ảnh CSV"><svg viewBox="0 0 24 24"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg><span>Tải ảnh CSV</span></a>
+                <a href="#" class="nav-item" data-tab="viewer" title="Xem Data"><svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13,3.5L18.5,9H13V3.5M12,11H18V13H12V11M12,15H18V17H12V15M6,11H11V13H6V11M6,15H11V17H6V15Z"/></svg><span>Xem Data</span></a>
+                <a href="#" class="nav-item" data-tab="screenshot" title="Chụp ảnh Web"><svg viewBox="0 0 24 24"><path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/></svg><span>Chụp ảnh Web</span></a>
+                <a href="#" class="nav-item" data-tab="linkExtractor" title="Trích xuất Link"><svg viewBox="0 0 24 24"><path d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"/></svg><span>Trích xuất Link</span></a>
+                <a href="#" class="nav-item" data-tab="donate" title="Ủng hộ"><svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.36C15.83,16.73 15.35,17 14.78,17C14.21,17 13.73,16.73 13.36,16.36L12,15L10.64,16.36C10.27,16.73 9.79,17 9.22,17C8.65,17 8.17,16.73 7.8,16.36C7.05,15.62 7.05,14.38 7.8,13.64L12,9.43L16.2,13.64C16.95,14.38 16.95,15.62 16.2,16.36Z"/></svg><span>Ủng hộ</span></a>
+            </div>
+        </nav>
+        <main class="content">
+            <div id="textTools" class="tab-content active">
+                <div class="card glassmorphism">
+                    <h2>Công cụ xử lý văn bản</h2>
+                    <textarea id="textInput" placeholder="Nhập văn bản..."></textarea>
+                    <div class="button-grid">
+                        <button class="button" id="btnInHoa">In Hoa</button><button class="button" id="btnChuCaiDau">Chữ Cái Đầu Hoa</button><button class="button" id="btnChuThuong">chữ thường</button>
+                        <button class="button" id="btnTachDong">Tách Dòng</button><button class="button" id="btnTimFont">Tìm Font Google</button><button class="button" id="btnSoLaMa">Số > La Mã</button>
+                        <button class="button" id="btnLaMaSo">La Mã > Số</button><button class="button" id="btnSaoChep">Sao Chép</button><button class="button button-danger" id="btnXoa">Xóa</button>
+                        <button class="button" id="btnCopyHistory">Xem Lịch Sử Copy</button>
+                    </div>
+                    <div id="copyHistoryList" class="copy-history" style="display:none;"></div>
+                </div>
+            </div>
+            <div id="downloader" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>Tải ảnh hàng loạt từ CSV</h2>
+                    <p class="description">Công cụ sẽ tự động tìm các cột 'PO', 'Item ID', và 'Artwork Front' để tải ảnh với tên dạng <strong>PO_ItemID.png</strong>.</p>
+                    <input type="file" id="csvFile" accept=".csv" class="input-file"/>
+                    <div class="downloader-options"><input type="text" id="subfolderPath" placeholder="Thư mục con để lưu (tùy chọn)"></div>
+                    <button id="startDownload" class="button button-primary">Bắt đầu tải</button>
+                    <div class="progress-container">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div id="downloader-log" class="log-area"></div>
+                </div>
+            </div>
+            <div id="viewer" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>Trình xem dữ liệu Excel/CSV</h2>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" class="input-file"/>
+                    <div class="progress-container" id="viewerProgress" style="display:none;">
+                        <div class="progress-fill" id="viewerProgressFill"></div>
+                    </div>
+                    <p id="viewerStatus" style="text-align:center; color:var(--text-secondary); margin:10px 0; display:none;">Đang tải và xử lý file...</p>
+                    <div class="viewer-grid" id="viewerGrid" style="display:none;">
+                        <div class="viewer-col-image"><img id="mainImage" class="main-img" src="" alt="Chưa có ảnh"><div class="links-section" id="imageLinks"></div></div>
+                        <div class="viewer-col-data"><table class="data-table" id="dataTableBody"></table><div class="navigation-buttons"><button id="prevBtn" class="button">‹ Quay lại</button><button id="nextBtn" class="button button-primary">Tiếp theo ›</button></div><p id="currentRowInfo" class="row-info"></p></div>
+                    </div>
+                </div>
+            </div>
+            <div id="screenshot" class="tab-content"><div class="card glassmorphism"><h2>Chụp ảnh màn hình</h2><p class="description">Chụp lại nội dung trang web hiện tại (sử dụng html2canvas cho phần thân trang).</p><button id="captureBtn" class="button button-primary">Chụp khu vực đang xem</button><div id="screenshot-result" class="screenshot-result" style="display:none;"><img id="screenshot-preview" src=""/><a id="download-screenshot" class="button" download="screenshot.png">Tải ảnh xuống</a></div></div></div>
+            <div id="linkExtractor" class="tab-content"><div class="card glassmorphism"><h2>Trích xuất Links & Files</h2><p class="description">Nhập URL để trích xuất liên kết, hình ảnh từ trang (có thể bị hạn chế do CORS).</p><input type="text" id="urlInput" placeholder="Nhập URL trang web..." ><button id="extractLinksBtn" class="button button-primary">Bắt đầu trích xuất</button><div id="extractor-results" class="extractor-results"></div></div></div>
+            <div id="donate" class="tab-content"><div class="card glassmorphism donate-card"><h2>Ủng hộ nhà phát triển</h2><p>Nếu bạn thấy công cụ này hữu ích, hãy ủng hộ để tác giả có thêm động lực phát triển các tính năng mới nhé. Cảm ơn bạn!</p><img src="lib/qr-donate.png" alt="QR Code ủng hộ" class="qr-donate-img"/><p class="donate-info">LUONG VAN TRUONG<br>9999 9996 789<br>Techcombank</p></div></div>
+        </main>
+    </div>
+
+    <script>
+        // Lazy load libs
+        let papaparseLoaded = false, xlsxLoaded = false, html2canvasLoaded = false;
+        function loadLib(url, globalVar) {
+            return new Promise((resolve, reject) => {
+                if (window[globalVar]) return resolve();
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = () => { window[globalVar] = true; resolve(); };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Smooth progress update using requestAnimationFrame
+        function updateProgress(targetPercent, element) {
+            const startPercent = parseFloat(element.style.width) || 0;
+            const duration = 500; // ms
+            const startTime = performance.now();
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Easing function: ease-out-cubic for smooth deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                element.style.width = (startPercent + (targetPercent - startPercent) * easeOut) + '%';
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tab switching giữ nguyên...
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    item.classList.add('active');
+                    const activeTab = document.getElementById(item.dataset.tab);
+                    if(activeTab) activeTab.classList.add('active');
+                });
+            });
+
+            // Text Tools - Giữ nguyên, thêm Copy History
+            const textInput = document.getElementById('textInput');
+            textInput.addEventListener('copy', (e) => {
+                const selectedText = window.getSelection().toString().trim();
+                if (selectedText) {
+                    let copyHistory = JSON.parse(localStorage.getItem('copyHistory') || '[]');
+                    if (copyHistory.length === 0 || copyHistory[0] !== selectedText) {
+                        copyHistory = [selectedText, ...copyHistory].slice(0, 50);
+                        localStorage.setItem('copyHistory', JSON.stringify(copyHistory));
+                    }
+                }
+            });
+            document.getElementById('btnCopyHistory').addEventListener('click', () => {
+                const list = document.getElementById('copyHistoryList');
+                const history = JSON.parse(localStorage.getItem('copyHistory') || '[]');
+                list.innerHTML = history.map((item, i) => `<div class="copy-item" onclick="document.getElementById('textInput').value='${item.replace(/'/g, "\\'")}'; this.parentElement.style.display='none';">${i+1}: ${item.substring(0,50)}${item.length>50?'...':''}</div>`).join('');
+                list.style.display = list.style.display === 'none' ? 'block' : 'none';
+            });
+            // Các button text tools giữ nguyên...
+            document.getElementById('textTools').addEventListener('click', e => {
+                if (e.target.tagName !== 'BUTTON' || e.target.id === 'btnCopyHistory') return;
+                let text = textInput.value;
+                let newText = text;
+                switch (e.target.id) {
+                    case 'btnInHoa': newText = text.toUpperCase(); break;
+                    case 'btnChuCaiDau': newText = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); break;
+                    case 'btnChuThuong': newText = text.toLowerCase(); break;
+                    case 'btnTachDong': newText = text.replace(/[,.\s]+/g, '\n').trim(); break;
+                    case 'btnTimFont': if(text) window.open(`https://www.google.com/search?q=${encodeURIComponent(text)} font`); return;
+                    case 'btnSoLaMa': newText = text.split(/\s+/).map(n => toRoman(Number(n))).join(' '); break;
+                    case 'btnLaMaSo': newText = text.split(/\s+/).map(r => fromRoman(r.toUpperCase())).join(' '); break;
+                    case 'btnSaoChep': navigator.clipboard.writeText(text); return;
+                    case 'btnXoa': newText = ''; break;
+                }
+                textInput.value = newText;
+            });
+
+            // Downloader - Giữ nguyên...
+            document.getElementById('startDownload').addEventListener('click', async () => {
+                const file = document.getElementById('csvFile').files[0];
+                if (!file) return alert("Vui lòng chọn một file CSV.");
+                await loadLib('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js', 'papaparseLoaded');
+                const logArea = document.getElementById('downloader-log');
+                const progressFill = document.getElementById('progressFill');
+                logArea.innerHTML = ''; 
+                progressFill.style.width = '0%';
+                log('Bắt đầu quá trình...');
+
+                Papa.parse(file, {
+                    header: true, skipEmptyLines: true,
+                    complete: async (results) => {
+                        const urlColumn = 'Artwork Front';
+                        const itemIdColumn = 'Item ID';
+                        const poColumn = 'PO';
+
+                        if (!results.data || results.data.length === 0) return log('Lỗi: File CSV rỗng.', 'error');
+                        if (!results.data[0].hasOwnProperty(urlColumn)) return log(`Lỗi: Không tìm thấy cột URL "${urlColumn}".`, 'error');
+                        if (!results.data[0].hasOwnProperty(itemIdColumn)) return log(`Lỗi: Không tìm thấy cột tên file "${itemIdColumn}".`, 'error');
+                        if (!results.data[0].hasOwnProperty(poColumn)) return log(`Lỗi: Không tìm thấy cột "${poColumn}".`, 'error');
+                        
+                        log(`Sử dụng các cột: "${poColumn}", "${itemIdColumn}", "${urlColumn}"`, 'info');
+                        const total = results.data.length;
+                        let successCount = 0, errorCount = 0;
+
+                        for (let i = 0; i < total; i++) {
+                            const row = results.data[i];
+                            const imageUrl = row[urlColumn];
+                            const itemId = row[itemIdColumn];
+                            const po = row[poColumn];
+
+                            if (!imageUrl || !itemId || !po) {
+                                log(`Dòng ${i + 2}: Bỏ qua (thiếu PO, Item ID, hoặc URL).`, 'error');
+                                errorCount++;
+                                updateProgress(((i + 1) / total) * 100, progressFill);
+                                continue;
+                            }
+                            
+                            let newFilename = `${po}_${itemId}`;
+                            let cleanFilename = newFilename.toString().replace(/[\\/:*?"<>|]/g, '_');
+                            const subfolder = document.getElementById('subfolderPath').value.trim();
+                            if (subfolder) {
+                                cleanFilename = `${subfolder.replace(/[\\/]$/, '')}/${cleanFilename}`;
+                            }
+
+                            log(`Dòng ${i + 2}: Chuẩn bị tải ${cleanFilename}.png...`, 'info');
+
+                            try {
+                                const response = await fetch(imageUrl);
+                                if (!response.ok) throw new Error(`Lỗi mạng: ${response.status}`);
+                                const blob = await response.blob();
+                                const objectUrl = window.URL.createObjectURL(blob);
+
+                                const a = document.createElement('a');
+                                a.href = objectUrl;
+                                a.download = `${cleanFilename}.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                window.URL.revokeObjectURL(objectUrl);
+                                
+                                log(`Dòng ${i + 2}: Tải thành công ${cleanFilename}.png`, 'success');
+                                successCount++;
+                            } catch (error) {
+                                log(`Dòng ${i + 2}: Lỗi khi tải - ${error.message}`, 'error');
+                                errorCount++;
+                            }
+                            // Smooth update progress after each item
+                            updateProgress(((i + 1) / total) * 100, progressFill);
+                            await new Promise(res => setTimeout(res, 200));
+                        }
+                        log(`--- HOÀN TẤT ---`, 'info');
+                        log(`Thành công: ${successCount}, Thất bại: ${errorCount}`, 'success');
+                    }
+                });
+            });
+
+            // Viewer - Thêm progress cho loading và parsing
+            let excelData = [], currentIndex = 0;
+            const viewerProgress = document.getElementById('viewerProgress');
+            const viewerProgressFill = document.getElementById('viewerProgressFill');
+            const viewerStatus = document.getElementById('viewerStatus');
+            const viewerGrid = document.getElementById('viewerGrid');
+            document.getElementById('fileInput').addEventListener('change', async e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                // Reset UI
+                viewerGrid.style.display = 'none';
+                viewerProgress.style.display = 'block';
+                viewerStatus.style.display = 'block';
+                viewerProgressFill.style.width = '0%';
+                viewerStatus.textContent = 'Đang tải file...';
+
+                const isCSV = file.name.endsWith('.csv');
+                const reader = new FileReader();
+
+                // Progress for file reading
+                reader.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentLoaded = (event.loaded / event.total) * 50; // 50% for reading
+                        updateProgress(percentLoaded, viewerProgressFill);
+                    }
+                };
+
+                reader.onload = async (event) => {
+                    // Simulate parsing progress (for XLSX sync, jump to 100%; for CSV, use step)
+                    viewerStatus.textContent = 'Đang xử lý dữ liệu...';
+                    updateProgress(60, viewerProgressFill); // Jump to 60% after read
+
+                    if (isCSV) {
+                        await loadLib('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js', 'papaparseLoaded');
+                        Papa.parse(event.target.result, {
+                            header: true,
+                            skipEmptyLines: true,
+                            step: (result, parser) => {
+                                // Progressive parsing: update every 10% of rows
+                                const rowIndex = parser.parsedRows;
+                                const estimatedPercent = 50 + (rowIndex / 10000) * 40; // Assume up to 10k rows, 40% for parsing
+                                if (rowIndex % 100 === 0) { // Update every 100 rows to avoid spam
+                                    updateProgress(Math.min(estimatedPercent, 90), viewerProgressFill);
+                                }
+                            },
+                            complete: (results) => {
+                                excelData = results.data;
+                                currentIndex = 0;
+                                updateProgress(100, viewerProgressFill);
+                                viewerStatus.style.display = 'none';
+                                viewerProgress.style.display = 'none';
+                                viewerGrid.style.display = 'grid';
+                                displayRow(currentIndex);
+                            }
+                        });
+                    } else {
+                        await loadLib('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsxLoaded');
+                        // Simulate parsing delay for large files (XLSX is sync, so brief delay)
+                        setTimeout(() => {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                            excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            excelData.shift(); // Bỏ header
+                            currentIndex = 0;
+                            updateProgress(100, viewerProgressFill);
+                            viewerStatus.style.display = 'none';
+                            viewerProgress.style.display = 'none';
+                            viewerGrid.style.display = 'grid';
+                            displayRow(currentIndex);
+                        }, 200); // Brief delay to show "processing"
+                    }
+                };
+
+                reader.onerror = () => {
+                    alert('Lỗi khi đọc file.');
+                    viewerProgress.style.display = 'none';
+                    viewerStatus.style.display = 'none';
+                };
+
+                if (isCSV) {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+            function displayRow(index) {
+                if (!excelData || index < 0 || index >= excelData.length) return;
+                const row = excelData[index];
+                document.getElementById('dataTableBody').innerHTML = `<tr><th>PO</th><td>${row[0]||''}</td></tr><tr><th>ItemID</th><td>${row[4]||''}</td></tr><tr><th>Size</th><td>${row[18]||''}</td></tr>`;
+                document.getElementById('mainImage').src = row[6] || '';
+                document.getElementById('imageLinks').innerHTML = `<a href="${row[7]||'#'}" target="_blank">Link 1</a> | <a href="${row[8]||'#'}" target="_blank">Link 2</a>`;
+                document.getElementById('currentRowInfo').innerText = `Dòng ${index + 1} / ${excelData.length}`;
+                document.getElementById('prevBtn').disabled = (index === 0);
+                document.getElementById('nextBtn').disabled = (index >= excelData.length - 1);
+            }
+            document.getElementById('viewer').addEventListener('click', e => {
+                if (e.target.id === 'prevBtn' && currentIndex > 0) displayRow(--currentIndex);
+                if (e.target.id === 'nextBtn' && currentIndex < excelData.length - 1) displayRow(++currentIndex);
+            });
+
+            // Screenshot - Giữ nguyên...
+            document.getElementById('captureBtn').addEventListener('click', async () => {
+                await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvasLoaded');
+                html2canvas(document.body, {scale: 1}).then(canvas => {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    document.getElementById('screenshot-preview').src = dataUrl;
+                    document.getElementById('download-screenshot').href = dataUrl;
+                    document.getElementById('screenshot-result').style.display = 'block';
+                }).catch(err => alert('Lỗi: ' + err.message));
+            });
+
+            // Link Extractor - Giữ nguyên...
+            document.getElementById('extractLinksBtn').addEventListener('click', async () => {
+                const url = document.getElementById('urlInput').value.trim();
+                if (!url) return alert('Vui lòng nhập URL.');
+                const resultsDiv = document.getElementById('extractor-results');
+                resultsDiv.innerHTML = '<p>Đang trích xuất...</p>';
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 5000); // 5s timeout
+                try {
+                    const response = await fetch(url, {signal: controller.signal});
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const links = [...new Set([...doc.querySelectorAll('a')].map(a => a.href).filter(Boolean))];
+                    const images = [...new Set([...doc.querySelectorAll('img')].map(img => img.src).filter(Boolean))];
+                    renderExtractorResults({ links, images });
+                } catch (error) {
+                    if (error.name === 'AbortError') alert('Timeout: Trang tải quá chậm.');
+                    else resultsDiv.innerHTML = `<p class="description">Lỗi: Không thể trích xuất do CORS hoặc lỗi mạng. ${error.message}</p>`;
+                }
+            });
+
+            // Helper functions
+            function log(message, type = 'info') {
+                const logArea = document.getElementById('downloader-log');
+                if(!logArea) return;
+                logArea.innerHTML += `<div class="log-item ${type}">${message}</div>`;
+                logArea.scrollTop = logArea.scrollHeight;
+            }
+
+            function renderExtractorResults({ links, images }) {
+                document.getElementById('extractor-results').innerHTML = `<h4>Liên kết (${links.length})</h4><ul>${links.map(l => `<li><a href="${l}" target="_blank" title="${l}">${l}</a></li>`).join('')}</ul><h4>Hình ảnh (${images.length})</h4><ul>${images.map(i => `<li><a href="${i}" target="_blank" title="${i}">${i}</a></li>`).join('')}</ul>`;
+            }
+            function toRoman(num) {
+                if (isNaN(num) || num <= 0 || num >= 4000) return "Invalid";
+                const numerals = [ { v: 1000, s: "M" }, { v: 900, s: "CM" }, { v: 500, s: "D" }, { v: 400, s: "CD" }, { v: 100, s: "C" }, { v: 90, s: "XC" }, { v: 50, s: "L" }, { v: 40, s: "XL" }, { v: 10, s: "X" }, { v: 9, s: "IX" }, { v: 5, s: "V" }, { v: 4, s: "IV" }, { v: 1, s: "I" }];
+                let result = '';
+                for (const n of numerals) { while (num >= n.v) { result += n.s; num -= n.v; } }
+                return result;
+            }
+            function fromRoman(roman) {
+                const map = { M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1 };
+                let result = 0;
+                for (let i = 0; i < roman.length; i++) {
+                    const current = map[roman[i]], next = map[roman[i + 1]];
+                    if(!current) return "Invalid";
+                    next && current < next ? result -= current : result += current;
+                }
+                return isNaN(result) ? "Invalid" : result;
+            }
+        });
+    </script>
+</body>
+</html>
