@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hic Hic TX - Web Version Optimized</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root{--bg-dark:#16161a;--glass-bg:rgba(22,22,26,0.6);--glass-border:rgba(255,255,255,0.08);--text-primary:#fffffe;--text-secondary:#94a1b2;--accent-color:#7f5af0;--accent-secondary:#2cb67d;--error-color:#ef4565;--transition:0.3s cubic-bezier(0.25,0.8,0.25,1)}
+        :root.light{--bg-dark:#f8f9fa;--glass-bg:rgba(255,255,255,0.9);--glass-border:rgba(0,0,0,0.1);--text-primary:#1e293b;--text-secondary:#64748b;--accent-color:#6366f1;--accent-secondary:#10b981;--error-color:#ef4444}
+        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg, #667eea 0%, #764ba2 50%, #1e1b4b 100%);margin:0;width:100vw;height:100vh;color:var(--text-primary);overflow:hidden;position:relative;transition:background 0.3s ease}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(circle at 20% 50%,rgba(127,90,240,0.15) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(44,182,125,0.15) 0%,transparent 50%);pointer-events:none;z-index:0;will-change:transform;transform:translateZ(0);opacity:0;transition:opacity 0.5s ease}
+        body.loaded::before{opacity:1;animation:float 20s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(30px,-30px,0) scale(1.1)}66%{transform:translate3d(-20px,20px,0) scale(0.9)}}
+        :root.light body{background:linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 50%, #f8fafc 100%)}
+        :root.light body::before{background-image:radial-gradient(circle at 20% 50%,rgba(99,102,241,0.1) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(139,92,246,0.1) 0%,transparent 50%)}.wrapper{display:flex;height:100%;background-color:rgba(22,22,26,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.sidebar{width:240px;background:var(--glass-bg);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;padding:15px 10px}.sidebar-header{padding:10px 15px 20px;text-align:center}.sidebar-header h3{margin:0;font-size:1.6em;font-weight:700;color:var(--accent-color)}.nav-group{display:flex;flex-direction:column;gap:5px}.nav-item{display:flex;align-items:center;padding:12px 15px;color:var(--text-secondary);text-decoration:none;font-weight:500;transition:all .2s ease;border-radius:8px;cursor:pointer}.nav-item:hover{color:var(--text-primary);background-color:rgba(255,255,255,0.05)}.nav-item.active{color:var(--text-primary);background-color:var(--accent-color);box-shadow:0 4px 15px rgba(127,90,240,0.4)}.nav-item svg{width:20px;height:20px;margin-right:15px;fill:currentColor;flex-shrink:0}.content{flex-grow:1;overflow-y:auto;padding:25px}.tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .4s ease-out forwards}@keyframes fadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}.card{background:rgba(0,0,0,0.2);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid var(--glass-border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);padding:30px}h2{margin-top:0;font-size:1.8em;padding-bottom:15px;margin-bottom:20px;color:var(--text-primary)}textarea,input[type=text],.input-file{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:8px;font-size:1em;color:var(--text-primary);box-sizing:border-box;margin-bottom:15px;transition:all .2s ease}textarea:focus,input[type=text]:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(127,90,240,0.4)}.button{background:linear-gradient(45deg,rgba(255,255,255,0.1),rgba(255,255,255,0.15));border:1px solid var(--glass-border);color:var(--text-primary);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:.9em;font-weight:600;transition:all .2s ease}.button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}.button:active{transform:translateY(0)}.button.button-primary{background:var(--accent-color);border:none;color:white}.button.button-primary:hover{background-color:#9a7bff;box-shadow:0 8px 25px rgba(127,90,240,0.5)}.button.button-danger{background:var(--error-color);border:none}.button-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}.downloader-options{display:grid;grid-template-columns:1fr;gap:15px;margin-top:15px}.log-area{margin-top:20px;height:250px;background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;font-family:monospace;font-size:.9em;overflow-y:auto;border:1px solid var(--glass-border)}.log-area .log-item{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05)}.log-area .log-item.error{color:var(--error-color)}.log-area .log-item.success{color:var(--accent-secondary)}.progress-container{position:relative;width:100%;height:6px;background:rgba(0,0,0,0.3);border-radius:3px;margin:10px 0;overflow:hidden}.progress-fill{background:linear-gradient(90deg, var(--accent-color), var(--accent-secondary));height:100%;border-radius:3px;transition:width 0.4s cubic-bezier(0.4, 0, 0.2, 1);width:0%;position:relative;overflow:hidden}.progress-fill::after{content:'';position:absolute;top:0;left:0;bottom:0;right:0;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);transform:translateX(-100%);animation:shimmer 1.5s infinite}@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}.viewer-grid{display:grid;grid-template-columns:250px 1fr;gap:25px}.main-img{width:100%;border-radius:8px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.2)}.data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:8px;text-align:left;border-bottom:1px solid var(--glass-border)}.data-table th{font-weight:600;width:100px;color:var(--accent-secondary)}.screenshot-result{margin-top:20px;text-align:center}.screenshot-result img{max-width:100%;border-radius:8px;border:1px solid var(--glass-border);margin-bottom:15px}.extractor-results{margin-top:20px;max-height:300px;overflow-y:auto}.extractor-results h4{color:var(--accent-secondary);border-bottom:1px solid var(--glass-border);padding-bottom:5px;margin-top:15px}.extractor-results ul{list-style:none;padding:0}.extractor-results li a{color:var(--text-primary);text-decoration:none;display:block;padding:5px;border-radius:4px;transition:background-color .2s ease}.extractor-results li a:hover{background-color:rgba(255,255,255,0.05);text-decoration:underline}.donate-card{text-align:center}.qr-donate-img{width:200px;height:200px;border-radius:12px;margin:20px auto;background:white;padding:10px}.donate-info{font-weight:600;line-height:1.6;margin-top:10px}.links-section{margin-top:10px}.links-section a{margin-right:10px;color:var(--accent-color);text-decoration:none}.links-section a:hover{text-decoration:underline}.row-info{text-align:center;font-style:italic;color:var(--text-secondary);margin-top:10px}.navigation-buttons{display:flex;justify-content:space-between;gap:10px;margin-top:15px}.description{margin-bottom:15px;font-style:italic;color:var(--text-secondary)}.copy-history{ max-height:200px; overflow-y:auto; margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; }.copy-item{ padding:5px; border-bottom:1px solid var(--glass-border); cursor:pointer; }.copy-item:hover{ background:rgba(255,255,255,0.05); }.copy-item:last-child{ border-bottom:none; }
+        /* Drag & Drop */
+        .drop-zone{ border:2px dashed var(--glass-border); border-radius:12px; padding:30px; text-align:center; background:rgba(0,0,0,0.1); transition:all 0.3s ease; cursor:pointer; margin-bottom:15px; }
+        .drop-zone.dragover{ border-color:var(--accent-color); background:rgba(127,90,240,0.1); transform:scale(1.02); }
+        .drop-zone:hover{ border-color:var(--accent-color); background:rgba(0,0,0,0.15); }
+        .drop-zone-icon{ font-size:3em; margin-bottom:10px; opacity:0.6; }
+        /* Quick Actions */
+        .quick-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; padding:10px; background:rgba(0,0,0,0.1); border-radius:8px; }
+        .quick-action-btn{ padding:8px 12px; background:rgba(255,255,255,0.1); border:1px solid var(--glass-border); border-radius:6px; color:var(--text-primary); cursor:pointer; font-size:0.85rem; transition:all 0.2s ease; display:flex; align-items:center; gap:6px; }
+        .quick-action-btn:hover{ background:var(--accent-color); transform:translateY(-2px); }
+        /* Toast */
+        .toast{ position:fixed; bottom:20px; right:20px; padding:12px 20px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:8px; color:var(--text-primary); box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:10000; animation:toastSlideIn 0.3s ease-out; max-width:300px; }
+        .toast.success{ border-color:var(--accent-secondary); }
+        .toast.error{ border-color:var(--error-color); }
+        @keyframes toastSlideIn{ from{ transform:translateX(400px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+        /* Utilities Grid */
+        .utilities-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; }
+        .utility-card{ background:rgba(0,0,0,0.15); border:1px solid var(--glass-border); border-radius:12px; padding:20px; }
+        .utility-card h3{ margin-top:0; font-size:1.2em; color:var(--accent-color); }
+        @media (max-width:768px){.sidebar{ width:60px; }.nav-item span{ display:none; }.content{ padding:15px; }.utilities-grid{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>Hic Hic TX</h3>
+                <button id="themeToggle" style="margin-top:10px;padding:8px 12px;background:var(--accent-color);border:none;border-radius:8px;color:white;cursor:pointer;font-size:0.85rem;transition:all 0.3s ease" title="Chuyển đổi Dark/Light mode">🌙 Dark Mode</button>
+            </div>
+            <div class="nav-group">
+                <a href="#" class="nav-item active" data-tab="textTools" title="Xử lý Text"><svg viewBox="0 0 24 24"><path d="M18.5,4L19.66,8.35L18.7,8.61C18.25,7.74 17.79,6.87 17.32,6C16.84,5.13 16.36,4.26 15.88,3.39L15,2H10V3H13.55C13.81,3.73 14.07,4.46 14.33,5.19C14.84,6.63 15.36,8.08 15.88,9.52L14.05,10.12C13.5,8.68 12.96,7.23 12.43,5.79C12.17,5.06 11.91,4.33 11.65,3.61L12.55,3H10V2L5,2V3H7.5L5.45,9.58C5.23,10.21 5,10.83 4.79,11.45C4.33,12.63 3.87,13.82 3.41,15H5.34L6.96,10.33L9.04,15H11.04L8.96,10.33L10.59,6.22C11.13,7.66 11.68,9.11 12.22,10.55L11,11V22H13V11L13.5,9.66L15.27,15H17.27L13.79,4.41C13.5,3.61 13.22,2.8 12.93,2H15L15.88,3.39C16.36,4.26 16.84,5.13 17.32,6C17.79,6.87 18.25,7.74 18.7,8.61L17.8,8.88L18.96,13.23H20.8L22,8.88L21.1,8.61C21.55,7.74 22,6.87 22.47,6C22.96,5.13 23.43,4.26 23.92,3.39L24.8,2H20.25L18.5,4Z"/></svg><span>Xử lý Text</span></a>
+                <a href="#" class="nav-item" data-tab="downloader" title="Tải ảnh CSV"><svg viewBox="0 0 24 24"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg><span>Tải ảnh CSV</span></a>
+                <a href="#" class="nav-item" data-tab="viewer" title="Xem Data"><svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13,3.5L18.5,9H13V3.5M12,11H18V13H12V11M12,15H18V17H12V15M6,11H11V13H6V11M6,15H11V17H6V15Z"/></svg><span>Xem Data</span></a>
+                <a href="#" class="nav-item" data-tab="screenshot" title="Chụp ảnh Web"><svg viewBox="0 0 24 24"><path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/></svg><span>Chụp ảnh Web</span></a>
+                <a href="#" class="nav-item" data-tab="linkExtractor" title="Trích xuất Link"><svg viewBox="0 0 24 24"><path d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"/></svg><span>Trích xuất Link</span></a>
+                <a href="#" class="nav-item" data-tab="imageProcessor" title="Xử lý ảnh"><svg viewBox="0 0 24 24"><path d="M9,2V8H11V11H5C3.89,11 3,11.89 3,13V16H1V22H7V16H5V13H11V16H9V22H15V16H13V13H19V16H17V22H23V16H21V13C21,11.89 20.11,11 19,11H13V8H15V2H9Z"/></svg><span>Xử lý ảnh</span></a>
+                <a href="#" class="nav-item" data-tab="fileProcessor" title="Xử lý file"><svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg><span>Xử lý file</span></a>
+                <a href="#" class="nav-item" data-tab="utilities" title="Công cụ tiện ích"><svg viewBox="0 0 24 24"><path d="M22.7,19L13.6,9.9C14.5,7.6 14,4.9 12.1,3C10.1,1 7.1,0.6 4.7,1.7L9,6L6,9L1.6,4.7C0.4,7.1 0.9,10.1 2.9,12.1C4.8,14 7.5,14.5 9.8,13.6L18.9,22.7C19.3,23.1 19.9,23.1 20.3,22.7L22.6,20.4C23.1,20 23.1,19.3 22.7,19Z"/></svg><span>Công cụ tiện ích</span></a>
+                <a href="#" class="nav-item" data-tab="donate" title="Ủng hộ"><svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.36C15.83,16.73 15.35,17 14.78,17C14.21,17 13.73,16.73 13.36,16.36L12,15L10.64,16.36C10.27,16.73 9.79,17 9.22,17C8.65,17 8.17,16.73 7.8,16.36C7.05,15.62 7.05,14.38 7.8,13.64L12,9.43L16.2,13.64C16.95,14.38 16.95,15.62 16.2,16.36Z"/></svg><span>Ủng hộ</span></a>
+            </div>
+        </nav>
+        <main class="content">
+            <div id="textTools" class="tab-content active">
+                <div class="card glassmorphism">
+                    <h2>Công cụ xử lý văn bản</h2>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="document.getElementById('textInput').focus()">📝 Focus</button>
+                        <button class="quick-action-btn" onclick="navigator.clipboard.readText().then(t => { document.getElementById('textInput').value = t; showToast('Đã dán từ clipboard', 'success'); })">📋 Dán</button>
+                        <button class="quick-action-btn" onclick="document.getElementById('textInput').value = ''; showToast('Đã xóa', 'success')">🗑️ Xóa</button>
+                        <button class="quick-action-btn" onclick="navigator.clipboard.writeText(document.getElementById('textInput').value); showToast('Đã sao chép', 'success')">📤 Copy</button>
+                    </div>
+                    <textarea id="textInput" placeholder="Nhập văn bản..."></textarea>
+                    <div class="button-grid">
+                        <button class="button" id="btnInHoa">In Hoa</button><button class="button" id="btnChuCaiDau">Chữ Cái Đầu Hoa</button><button class="button" id="btnChuThuong">chữ thường</button>
+                        <button class="button" id="btnTachDong">Tách Dòng</button><button class="button" id="btnTimFont">Tìm Font Google</button><button class="button" id="btnSoLaMa">Số > La Mã</button>
+                        <button class="button" id="btnLaMaSo">La Mã > Số</button><button class="button" id="btnSaoChep">Sao Chép</button><button class="button button-danger" id="btnXoa">Xóa</button>
+                        <button class="button" id="btnCopyHistory">Xem Lịch Sử Copy</button>
+                    </div>
+                    <div id="copyHistoryList" class="copy-history" style="display:none;"></div>
+                </div>
+            </div>
+            <div id="downloader" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>Tải ảnh hàng loạt từ CSV</h2>
+                    <p class="description">Công cụ sẽ tự động tìm các cột 'PO', 'Item ID', và 'Artwork Front' để tải ảnh với tên dạng <strong>PO_ItemID.png</strong>.</p>
+                    <div class="drop-zone" id="csvDropZone">
+                        <div class="drop-zone-icon">📁</div>
+                        <div>Kéo thả file CSV vào đây hoặc click để chọn</div>
+                        <div style="font-size: 0.8em; margin-top: 5px; opacity: 0.7;">Hỗ trợ: .csv</div>
+                    </div>
+                    <input type="file" id="csvFile" accept=".csv" class="input-file" style="display:none;"/>
+                    <div class="downloader-options"><input type="text" id="subfolderPath" placeholder="Thư mục con để lưu (tùy chọn)"></div>
+                    <button id="startDownload" class="button button-primary">Bắt đầu tải</button>
+                    <div class="progress-container">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div id="downloader-log" class="log-area"></div>
+                </div>
+            </div>
+            <div id="viewer" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>Trình xem dữ liệu Excel/CSV</h2>
+                    <div class="drop-zone" id="viewerDropZone">
+                        <div class="drop-zone-icon">📊</div>
+                        <div>Kéo thả file Excel/CSV vào đây hoặc click để chọn</div>
+                        <div style="font-size: 0.8em; margin-top: 5px; opacity: 0.7;">Hỗ trợ: .xlsx, .xls, .csv</div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" class="input-file" style="display:none;"/>
+                    <div class="progress-container" id="viewerProgress" style="display:none;">
+                        <div class="progress-fill" id="viewerProgressFill"></div>
+                    </div>
+                    <p id="viewerStatus" style="text-align:center; color:var(--text-secondary); margin:10px 0; display:none;">Đang tải và xử lý file...</p>
+                    <div class="viewer-grid" id="viewerGrid" style="display:none;">
+                        <div class="viewer-col-image"><img id="mainImage" class="main-img" src="" alt="Chưa có ảnh"><div class="links-section" id="imageLinks"></div></div>
+                        <div class="viewer-col-data"><table class="data-table" id="dataTableBody"></table><div class="navigation-buttons"><button id="prevBtn" class="button">‹ Quay lại</button><button id="nextBtn" class="button button-primary">Tiếp theo ›</button></div><p id="currentRowInfo" class="row-info"></p></div>
+                    </div>
+                </div>
+            </div>
+            <div id="screenshot" class="tab-content"><div class="card glassmorphism"><h2>Chụp ảnh màn hình</h2><p class="description">Chụp lại nội dung trang web hiện tại (sử dụng html2canvas cho phần thân trang).</p><button id="captureBtn" class="button button-primary">Chụp khu vực đang xem</button><div id="screenshot-result" class="screenshot-result" style="display:none;"><img id="screenshot-preview" src=""/><a id="download-screenshot" class="button" download="screenshot.png">Tải ảnh xuống</a></div></div></div>
+            <div id="linkExtractor" class="tab-content"><div class="card glassmorphism"><h2>Trích xuất Links & Files</h2><p class="description">Nhập URL để trích xuất liên kết, hình ảnh từ trang (có thể bị hạn chế do CORS).</p><input type="text" id="urlInput" placeholder="Nhập URL trang web..." ><button id="extractLinksBtn" class="button button-primary">Bắt đầu trích xuất</button><div id="extractor-results" class="extractor-results"></div></div></div>
+            <div id="imageProcessor" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>🖼️ Xử lý ảnh</h2>
+                    <div class="drop-zone" id="imageDropZone">
+                        <div class="drop-zone-icon">📷</div>
+                        <div>Kéo thả ảnh vào đây hoặc click để chọn</div>
+                        <div style="font-size: 0.8em; margin-top: 5px; opacity: 0.7;">Hỗ trợ: .jpg, .jpeg, .png, .webp, .gif</div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;" />
+                    <div id="imagePreviewContainer" style="display:none; margin-top:20px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                            <div>
+                                <h3>Ảnh gốc</h3>
+                                <img id="originalImage" style="max-width:100%; border-radius:8px; border:1px solid var(--glass-border);" />
+                                <div style="margin-top:10px; font-size:0.85rem; color:var(--text-secondary);">
+                                    Kích thước: <span id="originalSize">-</span><br>
+                                    Dung lượng: <span id="originalFileSize">-</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3>Ảnh đã xử lý</h3>
+                                <canvas id="processedCanvas" style="max-width:100%; border-radius:8px; border:1px solid var(--glass-border); display:none;"></canvas>
+                                <img id="processedImage" style="max-width:100%; border-radius:8px; border:1px solid var(--glass-border); display:none;" />
+                                <div id="processedInfo" style="margin-top:10px; font-size:0.85rem; color:var(--text-secondary); display:none;">
+                                    Kích thước: <span id="processedSize">-</span><br>
+                                    Dung lượng: <span id="processedFileSize">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="utilities-grid" style="margin-top:20px;">
+                        <div class="utility-card">
+                            <h3>📐 Resize ảnh</h3>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                                <div>
+                                    <label>Chiều rộng (px):</label>
+                                    <input type="number" id="resizeWidth" placeholder="Tự động" class="input-file" />
+                                </div>
+                                <div>
+                                    <label>Chiều cao (px):</label>
+                                    <input type="number" id="resizeHeight" placeholder="Tự động" class="input-file" />
+                                </div>
+                            </div>
+                            <label><input type="checkbox" id="maintainAspect" checked /> Giữ tỷ lệ</label>
+                            <button class="button button-primary" id="btnResize" style="width:100%; margin-top:10px;">Resize</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🗜️ Compress ảnh</h3>
+                            <label>Chất lượng (0-100):</label>
+                            <input type="range" id="compressQuality" min="10" max="100" value="80" style="width:100%; margin:10px 0;" />
+                            <div style="text-align:center; margin-bottom:10px;">
+                                <span id="qualityValue">80</span>%
+                            </div>
+                            <label>Format:</label>
+                            <select id="compressFormat" class="input-file" style="margin-bottom:10px;">
+                                <option value="jpeg">JPEG</option>
+                                <option value="png">PNG</option>
+                                <option value="webp">WebP</option>
+                            </select>
+                            <button class="button button-primary" id="btnCompress" style="width:100%;">Compress</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🔄 Convert Format</h3>
+                            <label>Chuyển đổi sang:</label>
+                            <select id="convertFormat" class="input-file" style="margin-bottom:10px;">
+                                <option value="jpeg">JPEG</option>
+                                <option value="png">PNG</option>
+                                <option value="webp">WebP</option>
+                                <option value="bmp">BMP</option>
+                            </select>
+                            <button class="button button-primary" id="btnConvert" style="width:100%;">Convert</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>✂️ Crop ảnh</h3>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                                <div>
+                                    <label>X:</label>
+                                    <input type="number" id="cropX" value="0" class="input-file" />
+                                </div>
+                                <div>
+                                    <label>Y:</label>
+                                    <input type="number" id="cropY" value="0" class="input-file" />
+                                </div>
+                                <div>
+                                    <label>Width:</label>
+                                    <input type="number" id="cropWidth" placeholder="Tự động" class="input-file" />
+                                </div>
+                                <div>
+                                    <label>Height:</label>
+                                    <input type="number" id="cropHeight" placeholder="Tự động" class="input-file" />
+                                </div>
+                            </div>
+                            <button class="button button-primary" id="btnCrop" style="width:100%;">Crop</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🔄 Rotate & Flip</h3>
+                            <div class="button-grid" style="grid-template-columns:repeat(2,1fr);">
+                                <button class="button" id="btnRotate90">↻ 90°</button>
+                                <button class="button" id="btnRotate180">↻ 180°</button>
+                                <button class="button" id="btnFlipH">↔ Flip H</button>
+                                <button class="button" id="btnFlipV">↕ Flip V</button>
+                            </div>
+                        </div>
+                        <div class="utility-card">
+                            <h3>💧 Watermark</h3>
+                            <input type="text" id="watermarkText" placeholder="Text watermark..." class="input-file" style="margin-bottom:10px;" />
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                                <div>
+                                    <label>Vị trí X:</label>
+                                    <input type="number" id="watermarkX" value="10" class="input-file" />
+                                </div>
+                                <div>
+                                    <label>Vị trí Y:</label>
+                                    <input type="number" id="watermarkY" value="10" class="input-file" />
+                                </div>
+                            </div>
+                            <label>Màu:</label>
+                            <input type="color" id="watermarkColor" value="#ffffff" style="width:100%; margin-bottom:10px; height:40px;" />
+                            <label>Kích thước font:</label>
+                            <input type="number" id="watermarkSize" value="24" min="10" max="100" class="input-file" style="margin-bottom:10px;" />
+                            <button class="button button-primary" id="btnWatermark" style="width:100%;">Thêm Watermark</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🎨 Extract Colors</h3>
+                            <button class="button button-primary" id="btnExtractColors" style="width:100%; margin-bottom:10px;">Trích xuất màu</button>
+                            <div id="colorPalette" style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px; text-align:center;">
+                        <button class="button button-primary" id="btnDownloadImage" style="display:none; margin-right:10px;">📥 Tải ảnh đã xử lý</button>
+                        <button class="button" id="btnResetImage">🔄 Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div id="fileProcessor" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>📁 Xử lý file</h2>
+                    <div class="utilities-grid">
+                        <div class="utility-card">
+                            <h3>📄 Batch Rename</h3>
+                            <div class="drop-zone" id="renameDropZone" style="margin-bottom:15px;">
+                                <div class="drop-zone-icon">📁</div>
+                                <div>Kéo thả nhiều file vào đây</div>
+                            </div>
+                            <input type="file" id="renameFiles" multiple style="display:none;" />
+                            <div id="renameFileList" style="max-height:200px; overflow-y:auto; margin-bottom:15px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; display:none;"></div>
+                            <label>Pattern:</label>
+                            <input type="text" id="renamePattern" placeholder="file_{n} hoặc {name}_copy" class="input-file" style="margin-bottom:10px;" />
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:10px;">
+                                {n} = số thứ tự, {name} = tên gốc, {ext} = extension
+                            </div>
+                            <button class="button button-primary" id="btnBatchRename" style="width:100%;">Đổi tên</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>📊 File Size Calculator</h3>
+                            <div class="drop-zone" id="sizeCalcDropZone" style="margin-bottom:15px;">
+                                <div class="drop-zone-icon">📏</div>
+                                <div>Kéo thả file/folder vào đây</div>
+                            </div>
+                            <input type="file" id="sizeCalcFiles" multiple webkitdirectory directory style="display:none;" />
+                            <div id="sizeCalcResults" style="margin-top:15px; padding:15px; background:rgba(0,0,0,0.2); border-radius:8px; display:none;">
+                                <div><strong>Tổng số file:</strong> <span id="totalFiles">0</span></div>
+                                <div><strong>Tổng dung lượng:</strong> <span id="totalSize">0 B</span></div>
+                                <div><strong>File lớn nhất:</strong> <span id="largestFile">-</span></div>
+                            </div>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🔄 File Converter</h3>
+                            <div class="drop-zone" id="convertFileDropZone" style="margin-bottom:15px;">
+                                <div class="drop-zone-icon">🔄</div>
+                                <div>Kéo thả file để convert</div>
+                            </div>
+                            <input type="file" id="convertFileInput" style="display:none;" />
+                            <label>Convert sang:</label>
+                            <select id="fileConvertFormat" class="input-file" style="margin-bottom:10px;">
+                                <option value="txt">Text (.txt)</option>
+                                <option value="json">JSON (.json)</option>
+                                <option value="csv">CSV (.csv)</option>
+                            </select>
+                            <button class="button button-primary" id="btnFileConvert" style="width:100%;">Convert</button>
+                        </div>
+                        <div class="utility-card">
+                            <h3>📋 File Organizer</h3>
+                            <div class="drop-zone" id="organizeDropZone" style="margin-bottom:15px;">
+                                <div class="drop-zone-icon">📂</div>
+                                <div>Kéo thả folder để tổ chức</div>
+                            </div>
+                            <input type="file" id="organizeFiles" multiple webkitdirectory directory style="display:none;" />
+                            <label>Tổ chức theo:</label>
+                            <select id="organizeBy" class="input-file" style="margin-bottom:10px;">
+                                <option value="extension">Extension</option>
+                                <option value="date">Ngày tạo</option>
+                                <option value="size">Kích thước</option>
+                            </select>
+                            <button class="button button-primary" id="btnOrganize" style="width:100%;">Tổ chức</button>
+                            <div id="organizeResults" style="margin-top:15px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; display:none; font-size:0.85rem;"></div>
+                        </div>
+                        <div class="utility-card">
+                            <h3>📝 Text File Tools</h3>
+                            <textarea id="textFileInput" placeholder="Nhập hoặc dán text..." style="min-height:150px; margin-bottom:10px;"></textarea>
+                            <div class="button-grid" style="grid-template-columns:repeat(2,1fr);">
+                                <button class="button" id="btnCountLines">Đếm dòng</button>
+                                <button class="button" id="btnCountWords">Đếm từ</button>
+                                <button class="button" id="btnRemoveDuplicates">Xóa trùng</button>
+                                <button class="button" id="btnSortLines">Sắp xếp</button>
+                            </div>
+                            <div id="textFileStats" style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; display:none;"></div>
+                        </div>
+                        <div class="utility-card">
+                            <h3>🔍 File Search & Filter</h3>
+                            <input type="text" id="fileSearchInput" placeholder="Tìm kiếm trong file..." class="input-file" style="margin-bottom:10px;" />
+                            <div class="drop-zone" id="searchFileDropZone" style="margin-bottom:15px;">
+                                <div class="drop-zone-icon">🔍</div>
+                                <div>Kéo thả file để tìm kiếm</div>
+                            </div>
+                            <input type="file" id="searchFileInput" style="display:none;" />
+                            <label><input type="checkbox" id="caseSensitive" /> Phân biệt hoa thường</label>
+                            <button class="button button-primary" id="btnFileSearch" style="width:100%; margin-top:10px;">Tìm kiếm</button>
+                            <div id="searchResults" style="margin-top:15px; max-height:200px; overflow-y:auto; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px; display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="utilities" class="tab-content">
+                <div class="card glassmorphism">
+                    <h2>🔧 Công cụ tiện ích</h2>
+                    <div class="utilities-grid">
+                        <!-- QR Code Generator -->
+                        <div class="utility-card">
+                            <h3>📱 QR Code Generator</h3>
+                            <input type="text" id="qrInput" placeholder="Nhập text hoặc URL..." class="input-file"/>
+                            <button class="button button-primary" id="btnGenerateQR">Tạo QR Code</button>
+                            <div id="qrResult" style="margin-top:15px; text-align:center; display:none;">
+                                <canvas id="qrCanvas"></canvas>
+                                <br><button class="button" id="btnDownloadQR" style="margin-top:10px;">Tải QR Code</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Base64 Encode/Decode -->
+                        <div class="utility-card">
+                            <h3>🔐 Base64 Encode/Decode</h3>
+                            <textarea id="base64Input" placeholder="Nhập text để encode hoặc base64 để decode..." style="min-height:100px;"></textarea>
+                            <div class="button-grid" style="grid-template-columns:1fr 1fr;">
+                                <button class="button" id="btnEncode64">Encode</button>
+                                <button class="button" id="btnDecode64">Decode</button>
+                            </div>
+                            <textarea id="base64Output" placeholder="Kết quả..." style="min-height:100px; margin-top:10px;" readonly></textarea>
+                        </div>
+                        
+                        <!-- JSON Formatter -->
+                        <div class="utility-card">
+                            <h3>📋 JSON Formatter</h3>
+                            <textarea id="jsonInput" placeholder="Nhập JSON..." style="min-height:150px; font-family:monospace;"></textarea>
+                            <div class="button-grid" style="grid-template-columns:1fr 1fr 1fr;">
+                                <button class="button" id="btnFormatJSON">Format</button>
+                                <button class="button" id="btnMinifyJSON">Minify</button>
+                                <button class="button" id="btnValidateJSON">Validate</button>
+                            </div>
+                            <textarea id="jsonOutput" placeholder="Kết quả..." style="min-height:150px; margin-top:10px; font-family:monospace;" readonly></textarea>
+                        </div>
+                        
+                        <!-- Password Generator -->
+                        <div class="utility-card">
+                            <h3>🔑 Password Generator</h3>
+                            <div style="margin-bottom:10px;">
+                                <label>Độ dài: <input type="number" id="pwdLength" value="16" min="4" max="128" style="width:80px;"/></label>
+                                <label style="margin-left:15px;"><input type="checkbox" id="pwdUppercase" checked/> Chữ hoa</label>
+                                <label style="margin-left:15px;"><input type="checkbox" id="pwdLowercase" checked/> Chữ thường</label>
+                                <label style="margin-left:15px;"><input type="checkbox" id="pwdNumbers" checked/> Số</label>
+                                <label style="margin-left:15px;"><input type="checkbox" id="pwdSymbols"/> Ký tự đặc biệt</label>
+                            </div>
+                            <input type="text" id="pwdOutput" placeholder="Password sẽ hiển thị ở đây..." readonly class="input-file"/>
+                            <div class="button-grid" style="grid-template-columns:1fr 1fr;">
+                                <button class="button button-primary" id="btnGeneratePwd">Tạo Password</button>
+                                <button class="button" id="btnCopyPwd">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <!-- UUID Generator -->
+                        <div class="utility-card">
+                            <h3>🆔 UUID Generator</h3>
+                            <input type="text" id="uuidOutput" placeholder="UUID sẽ hiển thị ở đây..." readonly class="input-file"/>
+                            <div class="button-grid" style="grid-template-columns:1fr 1fr;">
+                                <button class="button button-primary" id="btnGenerateUUID">Tạo UUID</button>
+                                <button class="button" id="btnCopyUUID">Copy</button>
+                            </div>
+                            <button class="button" id="btnGenerateMultipleUUID" style="margin-top:10px; width:100%;">Tạo 5 UUID</button>
+                            <div id="uuidList" style="margin-top:10px;"></div>
+                        </div>
+                        
+                        <!-- URL Encode/Decode -->
+                        <div class="utility-card">
+                            <h3>🔗 URL Encode/Decode</h3>
+                            <textarea id="urlEncodeInput" placeholder="Nhập URL hoặc text..." style="min-height:80px;"></textarea>
+                            <div class="button-grid" style="grid-template-columns:1fr 1fr;">
+                                <button class="button" id="btnEncodeURL">Encode</button>
+                                <button class="button" id="btnDecodeURL">Decode</button>
+                            </div>
+                            <textarea id="urlEncodeOutput" placeholder="Kết quả..." style="min-height:80px; margin-top:10px;" readonly></textarea>
+                        </div>
+                        
+                        <!-- Text Counter -->
+                        <div class="utility-card">
+                            <h3>📊 Đếm ký tự & từ</h3>
+                            <textarea id="counterInput" placeholder="Nhập text để đếm..." style="min-height:120px;"></textarea>
+                            <div id="counterStats" style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <div><strong>Ký tự:</strong> <span id="charCount">0</span></div>
+                                <div><strong>Từ:</strong> <span id="wordCount">0</span></div>
+                                <div><strong>Dòng:</strong> <span id="lineCount">0</span></div>
+                                <div><strong>Đoạn:</strong> <span id="paraCount">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Timestamp Converter -->
+                        <div class="utility-card">
+                            <h3>⏰ Timestamp Converter</h3>
+                            <input type="number" id="timestampInput" placeholder="Nhập timestamp (Unix)..." class="input-file"/>
+                            <button class="button button-primary" id="btnConvertTimestamp">Chuyển đổi</button>
+                            <div id="timestampOutput" style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <div><strong>Date:</strong> <span id="timestampDate">-</span></div>
+                                <div><strong>ISO:</strong> <span id="timestampISO">-</span></div>
+                            </div>
+                            <button class="button" id="btnCurrentTimestamp" style="margin-top:10px; width:100%;">Lấy Timestamp hiện tại</button>
+                        </div>
+                        
+                        <!-- Color Converter -->
+                        <div class="utility-card">
+                            <h3>🎨 Color Converter</h3>
+                            <input type="text" id="colorInput" placeholder="Nhập HEX (#FF5733) hoặc RGB (255,87,51)..." class="input-file"/>
+                            <button class="button button-primary" id="btnConvertColor">Chuyển đổi</button>
+                            <div id="colorPreview" style="width:100%; height:60px; margin-top:10px; border-radius:8px; border:2px solid var(--glass-border);"></div>
+                            <div id="colorOutput" style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <div><strong>HEX:</strong> <span id="colorHEX">-</span></div>
+                                <div><strong>RGB:</strong> <span id="colorRGB">-</span></div>
+                                <div><strong>HSL:</strong> <span id="colorHSL">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="donate" class="tab-content"><div class="card glassmorphism donate-card"><h2>Ủng hộ nhà phát triển</h2><p>Nếu bạn thấy công cụ này hữu ích, hãy ủng hộ để tác giả có thêm động lực phát triển các tính năng mới nhé. Cảm ơn bạn!</p><img src="lib/qr-donate.png" alt="QR Code ủng hộ" class="qr-donate-img"/><p class="donate-info">LUONG VAN TRUONG<br>9999 9996 789<br>Techcombank</p></div></div>
+        </main>
+    </div>
+
+    <script>
+        // Lazy load libs
+        let papaparseLoaded = false, xlsxLoaded = false, html2canvasLoaded = false;
+        function loadLib(url, globalVar) {
+            return new Promise((resolve, reject) => {
+                if (window[globalVar]) return resolve();
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = () => { window[globalVar] = true; resolve(); };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Smooth progress update using requestAnimationFrame
+        function updateProgress(targetPercent, element) {
+            const startPercent = parseFloat(element.style.width) || 0;
+            const duration = 500; // ms
+            const startTime = performance.now();
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Easing function: ease-out-cubic for smooth deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                element.style.width = (startPercent + (targetPercent - startPercent) * easeOut) + '%';
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Drag & Drop handlers
+        function setupDropZone(dropZone, fileInput, acceptedTypes = []) {
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (acceptedTypes.length === 0 || acceptedTypes.some(type => file.name.endsWith(type))) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        showToast(`Đã chọn file: ${file.name}`, 'success');
+                    } else {
+                        showToast('Định dạng file không được hỗ trợ', 'error');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('hic-theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('light');
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+            themeToggle.addEventListener('click', () => {
+                const isLight = document.documentElement.classList.toggle('light');
+                localStorage.setItem('hic-theme', isLight ? 'light' : 'dark');
+                themeToggle.textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
+                showToast('Đã chuyển sang ' + (isLight ? 'chế độ sáng' : 'chế độ tối'), 'success');
+            });
+            
+            // Setup drag & drop
+            setupDropZone(document.getElementById('csvDropZone'), document.getElementById('csvFile'), ['.csv']);
+            setupDropZone(document.getElementById('viewerDropZone'), document.getElementById('fileInput'), ['.xlsx', '.xls', '.csv']);
+            
+            // Tab switching giữ nguyên...
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    item.classList.add('active');
+                    const activeTab = document.getElementById(item.dataset.tab);
+                    if(activeTab) activeTab.classList.add('active');
+                });
+            });
+
+            // Text Tools - Giữ nguyên, thêm Copy History
+            const textInput = document.getElementById('textInput');
+            textInput.addEventListener('copy', (e) => {
+                const selectedText = window.getSelection().toString().trim();
+                if (selectedText) {
+                    let copyHistory = JSON.parse(localStorage.getItem('copyHistory') || '[]');
+                    if (copyHistory.length === 0 || copyHistory[0] !== selectedText) {
+                        copyHistory = [selectedText, ...copyHistory].slice(0, 50);
+                        localStorage.setItem('copyHistory', JSON.stringify(copyHistory));
+                    }
+                }
+            });
+            document.getElementById('btnCopyHistory').addEventListener('click', () => {
+                const list = document.getElementById('copyHistoryList');
+                const history = JSON.parse(localStorage.getItem('copyHistory') || '[]');
+                list.innerHTML = history.map((item, i) => `<div class="copy-item" onclick="document.getElementById('textInput').value='${item.replace(/'/g, "\\'")}'; this.parentElement.style.display='none';">${i+1}: ${item.substring(0,50)}${item.length>50?'...':''}</div>`).join('');
+                list.style.display = list.style.display === 'none' ? 'block' : 'none';
+            });
+            // Các button text tools giữ nguyên...
+            document.getElementById('textTools').addEventListener('click', e => {
+                if (e.target.tagName !== 'BUTTON' || e.target.id === 'btnCopyHistory') return;
+                let text = textInput.value;
+                let newText = text;
+                switch (e.target.id) {
+                    case 'btnInHoa': newText = text.toUpperCase(); break;
+                    case 'btnChuCaiDau': newText = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); break;
+                    case 'btnChuThuong': newText = text.toLowerCase(); break;
+                    case 'btnTachDong': newText = text.replace(/[,.\s]+/g, '\n').trim(); break;
+                    case 'btnTimFont': if(text) window.open(`https://www.google.com/search?q=${encodeURIComponent(text)} font`); return;
+                    case 'btnSoLaMa': newText = text.split(/\s+/).map(n => toRoman(Number(n))).join(' '); break;
+                    case 'btnLaMaSo': newText = text.split(/\s+/).map(r => fromRoman(r.toUpperCase())).join(' '); break;
+                    case 'btnSaoChep': 
+                        navigator.clipboard.writeText(text).then(() => {
+                            showToast('Đã sao chép vào clipboard', 'success');
+                        });
+                        return;
+                    case 'btnXoa': 
+                        newText = ''; 
+                        showToast('Đã xóa nội dung', 'success');
+                        break;
+                }
+                textInput.value = newText;
+            });
+
+            // Downloader - Giữ nguyên...
+            document.getElementById('startDownload').addEventListener('click', async () => {
+                const file = document.getElementById('csvFile').files[0];
+                if (!file) {
+                    showToast("Vui lòng chọn một file CSV.", 'error');
+                    return;
+                }
+                showToast('Bắt đầu tải ảnh...', 'info');
+                await loadLib('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js', 'papaparseLoaded');
+                const logArea = document.getElementById('downloader-log');
+                const progressFill = document.getElementById('progressFill');
+                logArea.innerHTML = ''; 
+                progressFill.style.width = '0%';
+                log('Bắt đầu quá trình...');
+
+                Papa.parse(file, {
+                    header: true, skipEmptyLines: true,
+                    complete: async (results) => {
+                        const urlColumn = 'Artwork Front';
+                        const itemIdColumn = 'Item ID';
+                        const poColumn = 'PO';
+
+                        if (!results.data || results.data.length === 0) return log('Lỗi: File CSV rỗng.', 'error');
+                        if (!results.data[0].hasOwnProperty(urlColumn)) return log(`Lỗi: Không tìm thấy cột URL "${urlColumn}".`, 'error');
+                        if (!results.data[0].hasOwnProperty(itemIdColumn)) return log(`Lỗi: Không tìm thấy cột tên file "${itemIdColumn}".`, 'error');
+                        if (!results.data[0].hasOwnProperty(poColumn)) return log(`Lỗi: Không tìm thấy cột "${poColumn}".`, 'error');
+                        
+                        log(`Sử dụng các cột: "${poColumn}", "${itemIdColumn}", "${urlColumn}"`, 'info');
+                        const total = results.data.length;
+                        let successCount = 0, errorCount = 0;
+
+                        for (let i = 0; i < total; i++) {
+                            const row = results.data[i];
+                            const imageUrl = row[urlColumn];
+                            const itemId = row[itemIdColumn];
+                            const po = row[poColumn];
+
+                            if (!imageUrl || !itemId || !po) {
+                                log(`Dòng ${i + 2}: Bỏ qua (thiếu PO, Item ID, hoặc URL).`, 'error');
+                                errorCount++;
+                                updateProgress(((i + 1) / total) * 100, progressFill);
+                                continue;
+                            }
+                            
+                            let newFilename = `${po}_${itemId}`;
+                            let cleanFilename = newFilename.toString().replace(/[\\/:*?"<>|]/g, '_');
+                            const subfolder = document.getElementById('subfolderPath').value.trim();
+                            if (subfolder) {
+                                cleanFilename = `${subfolder.replace(/[\\/]$/, '')}/${cleanFilename}`;
+                            }
+
+                            log(`Dòng ${i + 2}: Chuẩn bị tải ${cleanFilename}.png...`, 'info');
+
+                            try {
+                                const response = await fetch(imageUrl);
+                                if (!response.ok) throw new Error(`Lỗi mạng: ${response.status}`);
+                                const blob = await response.blob();
+                                const objectUrl = window.URL.createObjectURL(blob);
+
+                                const a = document.createElement('a');
+                                a.href = objectUrl;
+                                a.download = `${cleanFilename}.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                window.URL.revokeObjectURL(objectUrl);
+                                
+                                log(`Dòng ${i + 2}: Tải thành công ${cleanFilename}.png`, 'success');
+                                successCount++;
+                            } catch (error) {
+                                log(`Dòng ${i + 2}: Lỗi khi tải - ${error.message}`, 'error');
+                                errorCount++;
+                            }
+                            // Smooth update progress after each item
+                            updateProgress(((i + 1) / total) * 100, progressFill);
+                            await new Promise(res => setTimeout(res, 200));
+                        }
+                        log(`--- HOÀN TẤT ---`, 'info');
+                        log(`Thành công: ${successCount}, Thất bại: ${errorCount}`, 'success');
+                        showToast(`Hoàn tất! Thành công: ${successCount}, Thất bại: ${errorCount}`, successCount > 0 ? 'success' : 'error');
+                    }
+                });
+            });
+
+            // Viewer - Thêm progress cho loading và parsing
+            let excelData = [], currentIndex = 0;
+            const viewerProgress = document.getElementById('viewerProgress');
+            const viewerProgressFill = document.getElementById('viewerProgressFill');
+            const viewerStatus = document.getElementById('viewerStatus');
+            const viewerGrid = document.getElementById('viewerGrid');
+            document.getElementById('fileInput').addEventListener('change', async e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                showToast(`Đang xử lý file: ${file.name}...`, 'info');
+                // Reset UI
+                viewerGrid.style.display = 'none';
+                viewerProgress.style.display = 'block';
+                viewerStatus.style.display = 'block';
+                viewerProgressFill.style.width = '0%';
+                viewerStatus.textContent = 'Đang tải file...';
+
+                const isCSV = file.name.endsWith('.csv');
+                const reader = new FileReader();
+
+                // Progress for file reading
+                reader.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentLoaded = (event.loaded / event.total) * 50; // 50% for reading
+                        updateProgress(percentLoaded, viewerProgressFill);
+                    }
+                };
+
+                reader.onload = async (event) => {
+                    // Simulate parsing progress (for XLSX sync, jump to 100%; for CSV, use step)
+                    viewerStatus.textContent = 'Đang xử lý dữ liệu...';
+                    updateProgress(60, viewerProgressFill); // Jump to 60% after read
+
+                    if (isCSV) {
+                        await loadLib('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js', 'papaparseLoaded');
+                        Papa.parse(event.target.result, {
+                            header: true,
+                            skipEmptyLines: true,
+                            step: (result, parser) => {
+                                // Progressive parsing: update every 10% of rows
+                                const rowIndex = parser.parsedRows;
+                                const estimatedPercent = 50 + (rowIndex / 10000) * 40; // Assume up to 10k rows, 40% for parsing
+                                if (rowIndex % 100 === 0) { // Update every 100 rows to avoid spam
+                                    updateProgress(Math.min(estimatedPercent, 90), viewerProgressFill);
+                                }
+                            },
+                            complete: (results) => {
+                                excelData = results.data;
+                                currentIndex = 0;
+                                updateProgress(100, viewerProgressFill);
+                                viewerStatus.style.display = 'none';
+                                viewerProgress.style.display = 'none';
+                                viewerGrid.style.display = 'grid';
+                                displayRow(currentIndex);
+                                showToast(`Đã tải ${excelData.length} dòng dữ liệu`, 'success');
+                            }
+                        });
+                    } else {
+                        await loadLib('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsxLoaded');
+                        // Simulate parsing delay for large files (XLSX is sync, so brief delay)
+                        setTimeout(() => {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                            excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            excelData.shift(); // Bỏ header
+                            currentIndex = 0;
+                            updateProgress(100, viewerProgressFill);
+                            viewerStatus.style.display = 'none';
+                            viewerProgress.style.display = 'none';
+                            viewerGrid.style.display = 'grid';
+                            displayRow(currentIndex);
+                            showToast(`Đã tải ${excelData.length} dòng dữ liệu`, 'success');
+                        }, 200); // Brief delay to show "processing"
+                    }
+                };
+
+                reader.onerror = () => {
+                    showToast('Lỗi khi đọc file.', 'error');
+                    viewerProgress.style.display = 'none';
+                    viewerStatus.style.display = 'none';
+                };
+
+                if (isCSV) {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+            function displayRow(index) {
+                if (!excelData || index < 0 || index >= excelData.length) return;
+                const row = excelData[index];
+                document.getElementById('dataTableBody').innerHTML = `<tr><th>PO</th><td>${row[0]||''}</td></tr><tr><th>ItemID</th><td>${row[4]||''}</td></tr><tr><th>Size</th><td>${row[18]||''}</td></tr>`;
+                document.getElementById('mainImage').src = row[6] || '';
+                document.getElementById('imageLinks').innerHTML = `<a href="${row[7]||'#'}" target="_blank">Link 1</a> | <a href="${row[8]||'#'}" target="_blank">Link 2</a>`;
+                document.getElementById('currentRowInfo').innerText = `Dòng ${index + 1} / ${excelData.length}`;
+                document.getElementById('prevBtn').disabled = (index === 0);
+                document.getElementById('nextBtn').disabled = (index >= excelData.length - 1);
+            }
+            document.getElementById('viewer').addEventListener('click', e => {
+                if (e.target.id === 'prevBtn' && currentIndex > 0) displayRow(--currentIndex);
+                if (e.target.id === 'nextBtn' && currentIndex < excelData.length - 1) displayRow(++currentIndex);
+            });
+
+            // Screenshot - Giữ nguyên...
+            document.getElementById('captureBtn').addEventListener('click', async () => {
+                showToast('Đang chụp ảnh màn hình...', 'info');
+                await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvasLoaded');
+                html2canvas(document.body, {scale: 1}).then(canvas => {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    document.getElementById('screenshot-preview').src = dataUrl;
+                    document.getElementById('download-screenshot').href = dataUrl;
+                    document.getElementById('screenshot-result').style.display = 'block';
+                    showToast('Đã chụp ảnh thành công!', 'success');
+                }).catch(err => showToast('Lỗi: ' + err.message, 'error'));
+            });
+
+            // Link Extractor - Giữ nguyên...
+            document.getElementById('extractLinksBtn')?.addEventListener('click', async () => {
+                const urlInput = document.querySelector('#linkExtractor input[type="text"]');
+                const url = urlInput?.value.trim();
+                if (!url) {
+                    showToast('Vui lòng nhập URL.', 'error');
+                    return;
+                }
+                showToast('Đang trích xuất links...', 'info');
+                const resultsDiv = document.getElementById('extractor-results');
+                resultsDiv.innerHTML = '<p>Đang trích xuất...</p>';
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 5000); // 5s timeout
+                try {
+                    const response = await fetch(url, {signal: controller.signal});
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const links = [...new Set([...doc.querySelectorAll('a')].map(a => a.href).filter(Boolean))];
+                    const images = [...new Set([...doc.querySelectorAll('img')].map(img => img.src).filter(Boolean))];
+                    renderExtractorResults({ links, images });
+                    showToast(`Đã trích xuất ${links.length} links và ${images.length} ảnh`, 'success');
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        showToast('Timeout: Trang tải quá chậm.', 'error');
+                    } else {
+                        resultsDiv.innerHTML = `<p class="description">Lỗi: Không thể trích xuất do CORS hoặc lỗi mạng. ${error.message}</p>`;
+                        showToast('Lỗi khi trích xuất links', 'error');
+                    }
+                }
+            });
+
+            // Helper functions
+            function log(message, type = 'info') {
+                const logArea = document.getElementById('downloader-log');
+                if(!logArea) return;
+                logArea.innerHTML += `<div class="log-item ${type}">${message}</div>`;
+                logArea.scrollTop = logArea.scrollHeight;
+            }
+
+            function renderExtractorResults({ links, images }) {
+                document.getElementById('extractor-results').innerHTML = `<h4>Liên kết (${links.length})</h4><ul>${links.map(l => `<li><a href="${l}" target="_blank" title="${l}">${l}</a></li>`).join('')}</ul><h4>Hình ảnh (${images.length})</h4><ul>${images.map(i => `<li><a href="${i}" target="_blank" title="${i}">${i}</a></li>`).join('')}</ul>`;
+            }
+            
+            // ===== Utilities Functions =====
+            
+            // QR Code Generator
+            document.getElementById('btnGenerateQR')?.addEventListener('click', async () => {
+                const text = document.getElementById('qrInput').value.trim();
+                if (!text) {
+                    showToast('Vui lòng nhập text hoặc URL', 'error');
+                    return;
+                }
+                try {
+                    await loadLib('https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js', 'qrcodeLoaded');
+                    const canvas = document.getElementById('qrCanvas');
+                    await QRCode.toCanvas(canvas, text, { width: 256, margin: 2 });
+                    document.getElementById('qrResult').style.display = 'block';
+                    showToast('Đã tạo QR Code thành công!', 'success');
+                } catch (err) {
+                    showToast('Lỗi khi tạo QR Code: ' + err.message, 'error');
+                }
+            });
+            
+            document.getElementById('btnDownloadQR')?.addEventListener('click', () => {
+                const canvas = document.getElementById('qrCanvas');
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                showToast('Đã tải QR Code', 'success');
+            });
+            
+            // Base64 Encode/Decode
+            document.getElementById('btnEncode64')?.addEventListener('click', () => {
+                const input = document.getElementById('base64Input').value;
+                try {
+                    document.getElementById('base64Output').value = btoa(unescape(encodeURIComponent(input)));
+                    showToast('Đã encode thành công', 'success');
+                } catch (err) {
+                    showToast('Lỗi khi encode', 'error');
+                }
+            });
+            
+            document.getElementById('btnDecode64')?.addEventListener('click', () => {
+                const input = document.getElementById('base64Input').value;
+                try {
+                    document.getElementById('base64Output').value = decodeURIComponent(escape(atob(input)));
+                    showToast('Đã decode thành công', 'success');
+                } catch (err) {
+                    showToast('Lỗi khi decode. Kiểm tra lại input.', 'error');
+                }
+            });
+            
+            // JSON Formatter
+            document.getElementById('btnFormatJSON')?.addEventListener('click', () => {
+                try {
+                    const input = document.getElementById('jsonInput').value;
+                    const parsed = JSON.parse(input);
+                    document.getElementById('jsonOutput').value = JSON.stringify(parsed, null, 2);
+                    showToast('Đã format JSON thành công', 'success');
+                } catch (err) {
+                    showToast('JSON không hợp lệ: ' + err.message, 'error');
+                }
+            });
+            
+            document.getElementById('btnMinifyJSON')?.addEventListener('click', () => {
+                try {
+                    const input = document.getElementById('jsonInput').value;
+                    const parsed = JSON.parse(input);
+                    document.getElementById('jsonOutput').value = JSON.stringify(parsed);
+                    showToast('Đã minify JSON thành công', 'success');
+                } catch (err) {
+                    showToast('JSON không hợp lệ: ' + err.message, 'error');
+                }
+            });
+            
+            document.getElementById('btnValidateJSON')?.addEventListener('click', () => {
+                try {
+                    const input = document.getElementById('jsonInput').value;
+                    JSON.parse(input);
+                    showToast('JSON hợp lệ!', 'success');
+                    document.getElementById('jsonOutput').value = '✓ JSON hợp lệ';
+                } catch (err) {
+                    showToast('JSON không hợp lệ: ' + err.message, 'error');
+                    document.getElementById('jsonOutput').value = '✗ Lỗi: ' + err.message;
+                }
+            });
+            
+            // Password Generator
+            function generatePassword(length, useUpper, useLower, useNumbers, useSymbols) {
+                let chars = '';
+                if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+                if (useNumbers) chars += '0123456789';
+                if (useSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+                if (!chars) return 'Chọn ít nhất một loại ký tự';
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return password;
+            }
+            
+            document.getElementById('btnGeneratePwd')?.addEventListener('click', () => {
+                const length = parseInt(document.getElementById('pwdLength').value) || 16;
+                const useUpper = document.getElementById('pwdUppercase').checked;
+                const useLower = document.getElementById('pwdLowercase').checked;
+                const useNumbers = document.getElementById('pwdNumbers').checked;
+                const useSymbols = document.getElementById('pwdSymbols').checked;
+                const password = generatePassword(length, useUpper, useLower, useNumbers, useSymbols);
+                document.getElementById('pwdOutput').value = password;
+                showToast('Đã tạo password', 'success');
+            });
+            
+            document.getElementById('btnCopyPwd')?.addEventListener('click', () => {
+                const pwd = document.getElementById('pwdOutput').value;
+                if (pwd) {
+                    navigator.clipboard.writeText(pwd);
+                    showToast('Đã copy password', 'success');
+                }
+            });
+            
+            // UUID Generator
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            document.getElementById('btnGenerateUUID')?.addEventListener('click', () => {
+                document.getElementById('uuidOutput').value = generateUUID();
+                showToast('Đã tạo UUID', 'success');
+            });
+            
+            document.getElementById('btnCopyUUID')?.addEventListener('click', () => {
+                const uuid = document.getElementById('uuidOutput').value;
+                if (uuid) {
+                    navigator.clipboard.writeText(uuid);
+                    showToast('Đã copy UUID', 'success');
+                }
+            });
+            
+            document.getElementById('btnGenerateMultipleUUID')?.addEventListener('click', () => {
+                let html = '';
+                for (let i = 0; i < 5; i++) {
+                    html += `<div style="padding:5px; margin:5px 0; background:rgba(0,0,0,0.2); border-radius:4px; cursor:pointer;" onclick="navigator.clipboard.writeText('${generateUUID()}'); showToast('Đã copy', 'success');">${generateUUID()}</div>`;
+                }
+                document.getElementById('uuidList').innerHTML = html;
+                showToast('Đã tạo 5 UUID', 'success');
+            });
+            
+            // URL Encode/Decode
+            document.getElementById('btnEncodeURL')?.addEventListener('click', () => {
+                const input = document.getElementById('urlEncodeInput').value;
+                document.getElementById('urlEncodeOutput').value = encodeURIComponent(input);
+                showToast('Đã encode URL', 'success');
+            });
+            
+            document.getElementById('btnDecodeURL')?.addEventListener('click', () => {
+                try {
+                    const input = document.getElementById('urlEncodeInput').value;
+                    document.getElementById('urlEncodeOutput').value = decodeURIComponent(input);
+                    showToast('Đã decode URL', 'success');
+                } catch (err) {
+                    showToast('Lỗi khi decode URL', 'error');
+                }
+            });
+            
+            // Text Counter
+            document.getElementById('counterInput')?.addEventListener('input', (e) => {
+                const text = e.target.value;
+                document.getElementById('charCount').textContent = text.length;
+                document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+                document.getElementById('lineCount').textContent = text.split('\n').length;
+                document.getElementById('paraCount').textContent = text.split(/\n\s*\n/).filter(p => p.trim()).length || 1;
+            });
+            
+            // Timestamp Converter
+            document.getElementById('btnConvertTimestamp')?.addEventListener('click', () => {
+                const timestamp = parseInt(document.getElementById('timestampInput').value);
+                if (!timestamp) {
+                    showToast('Nhập timestamp hợp lệ', 'error');
+                    return;
+                }
+                const date = new Date(timestamp * 1000);
+                document.getElementById('timestampDate').textContent = date.toLocaleString('vi-VN');
+                document.getElementById('timestampISO').textContent = date.toISOString();
+                showToast('Đã chuyển đổi', 'success');
+            });
+            
+            document.getElementById('btnCurrentTimestamp')?.addEventListener('click', () => {
+                const now = Math.floor(Date.now() / 1000);
+                document.getElementById('timestampInput').value = now;
+                document.getElementById('btnConvertTimestamp').click();
+            });
+            
+            // Color Converter
+            document.getElementById('btnConvertColor')?.addEventListener('click', () => {
+                const input = document.getElementById('colorInput').value.trim();
+                let r, g, b;
+                
+                // HEX to RGB
+                if (input.startsWith('#')) {
+                    const hex = input.substring(1);
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    b = parseInt(hex.substring(4, 6), 16);
+                }
+                // RGB to HEX
+                else if (input.includes(',')) {
+                    const parts = input.split(',').map(s => parseInt(s.trim()));
+                    r = parts[0];
+                    g = parts[1];
+                    b = parts[2];
+                } else {
+                    showToast('Định dạng không hợp lệ. Dùng HEX (#FF5733) hoặc RGB (255,87,51)', 'error');
+                    return;
+                }
+                
+                if (isNaN(r) || isNaN(g) || isNaN(b)) {
+                    showToast('Giá trị màu không hợp lệ', 'error');
+                    return;
+                }
+                
+                const hex = '#' + [r, g, b].map(x => {
+                    const hex = x.toString(16);
+                    return hex.length === 1 ? '0' + hex : hex;
+                }).join('');
+                
+                // RGB to HSL
+                const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
+                const max = Math.max(rNorm, gNorm, bNorm), min = Math.min(rNorm, gNorm, bNorm);
+                let h, s, l = (max + min) / 2;
+                
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case rNorm: h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6; break;
+                        case gNorm: h = ((bNorm - rNorm) / d + 2) / 6; break;
+                        case bNorm: h = ((rNorm - gNorm) / d + 4) / 6; break;
+                    }
+                }
+                h = Math.round(h * 360);
+                s = Math.round(s * 100);
+                l = Math.round(l * 100);
+                
+                document.getElementById('colorHEX').textContent = hex;
+                document.getElementById('colorRGB').textContent = `rgb(${r}, ${g}, ${b})`;
+                document.getElementById('colorHSL').textContent = `hsl(${h}, ${s}%, ${l}%)`;
+                document.getElementById('colorPreview').style.backgroundColor = hex;
+                showToast('Đã chuyển đổi màu', 'success');
+            });
+            function toRoman(num) {
+                if (isNaN(num) || num <= 0 || num >= 4000) return "Invalid";
+                const numerals = [ { v: 1000, s: "M" }, { v: 900, s: "CM" }, { v: 500, s: "D" }, { v: 400, s: "CD" }, { v: 100, s: "C" }, { v: 90, s: "XC" }, { v: 50, s: "L" }, { v: 40, s: "XL" }, { v: 10, s: "X" }, { v: 9, s: "IX" }, { v: 5, s: "V" }, { v: 4, s: "IV" }, { v: 1, s: "I" }];
+                let result = '';
+                for (const n of numerals) { while (num >= n.v) { result += n.s; num -= n.v; } }
+                return result;
+            }
+            function fromRoman(roman) {
+                const map = { M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1 };
+                let result = 0;
+                for (let i = 0; i < roman.length; i++) {
+                    const current = map[roman[i]], next = map[roman[i + 1]];
+                    if(!current) return "Invalid";
+                    next && current < next ? result -= current : result += current;
+                }
+                return isNaN(result) ? "Invalid" : result;
+            }
+            
+            // ===== Image Processor =====
+            let currentImage = null;
+            let imageCanvas = null;
+            
+            setupDropZone(document.getElementById('imageDropZone'), document.getElementById('imageInput'), ['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+            
+            document.getElementById('imageInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) loadImage(file);
+            });
+            
+            function loadImage(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        currentImage = img;
+                        document.getElementById('originalImage').src = e.target.result;
+                        document.getElementById('originalSize').textContent = `${img.width} × ${img.height}px`;
+                        document.getElementById('originalFileSize').textContent = formatFileSize(file.size);
+                        document.getElementById('imagePreviewContainer').style.display = 'block';
+                        document.getElementById('processedImage').style.display = 'none';
+                        document.getElementById('processedCanvas').style.display = 'none';
+                        document.getElementById('processedInfo').style.display = 'none';
+                        document.getElementById('btnDownloadImage').style.display = 'none';
+                        showToast('Đã tải ảnh thành công', 'success');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            }
+            
+            function createCanvas(img) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                return { canvas, ctx };
+            }
+            
+            document.getElementById('btnResize').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const width = parseInt(document.getElementById('resizeWidth').value) || currentImage.width;
+                const height = parseInt(document.getElementById('resizeHeight').value) || currentImage.height;
+                const maintainAspect = document.getElementById('maintainAspect').checked;
+                
+                let finalWidth = width;
+                let finalHeight = height;
+                
+                if (maintainAspect) {
+                    const ratio = currentImage.width / currentImage.height;
+                    if (width && !height) finalHeight = width / ratio;
+                    else if (height && !width) finalWidth = height * ratio;
+                    else {
+                        const wRatio = width / currentImage.width;
+                        const hRatio = height / currentImage.height;
+                        const ratio = Math.min(wRatio, hRatio);
+                        finalWidth = currentImage.width * ratio;
+                        finalHeight = currentImage.height * ratio;
+                    }
+                }
+                
+                const { canvas } = createCanvas(currentImage);
+                const resizedCanvas = document.createElement('canvas');
+                resizedCanvas.width = finalWidth;
+                resizedCanvas.height = finalHeight;
+                const resizedCtx = resizedCanvas.getContext('2d');
+                resizedCtx.drawImage(canvas, 0, 0, finalWidth, finalHeight);
+                
+                displayProcessedImage(resizedCanvas);
+                showToast('Đã resize ảnh', 'success');
+            });
+            
+            document.getElementById('btnCompress').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const quality = parseInt(document.getElementById('compressQuality').value) / 100;
+                const format = document.getElementById('compressFormat').value;
+                
+                const { canvas } = createCanvas(currentImage);
+                const dataUrl = canvas.toDataURL(`image/${format}`, quality);
+                
+                const img = new Image();
+                img.onload = () => {
+                    displayProcessedImage(canvas, dataUrl);
+                    showToast('Đã compress ảnh', 'success');
+                };
+                img.src = dataUrl;
+            });
+            
+            document.getElementById('compressQuality').addEventListener('input', (e) => {
+                document.getElementById('qualityValue').textContent = e.target.value;
+            });
+            
+            document.getElementById('btnConvert').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const format = document.getElementById('convertFormat').value;
+                const { canvas } = createCanvas(currentImage);
+                const dataUrl = canvas.toDataURL(`image/${format}`);
+                
+                const img = new Image();
+                img.onload = () => {
+                    displayProcessedImage(canvas, dataUrl);
+                    showToast(`Đã convert sang ${format.toUpperCase()}`, 'success');
+                };
+                img.src = dataUrl;
+            });
+            
+            document.getElementById('btnCrop').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const x = parseInt(document.getElementById('cropX').value) || 0;
+                const y = parseInt(document.getElementById('cropY').value) || 0;
+                const width = parseInt(document.getElementById('cropWidth').value) || currentImage.width - x;
+                const height = parseInt(document.getElementById('cropHeight').value) || currentImage.height - y;
+                
+                const { canvas } = createCanvas(currentImage);
+                const croppedCanvas = document.createElement('canvas');
+                croppedCanvas.width = width;
+                croppedCanvas.height = height;
+                const croppedCtx = croppedCanvas.getContext('2d');
+                croppedCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+                
+                displayProcessedImage(croppedCanvas);
+                showToast('Đã crop ảnh', 'success');
+            });
+            
+            document.getElementById('btnRotate90').addEventListener('click', () => rotateImage(90));
+            document.getElementById('btnRotate180').addEventListener('click', () => rotateImage(180));
+            
+            function rotateImage(degrees) {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const { canvas } = createCanvas(currentImage);
+                const rotatedCanvas = document.createElement('canvas');
+                
+                if (degrees === 90 || degrees === 270) {
+                    rotatedCanvas.width = canvas.height;
+                    rotatedCanvas.height = canvas.width;
+                } else {
+                    rotatedCanvas.width = canvas.width;
+                    rotatedCanvas.height = canvas.height;
+                }
+                
+                const rotatedCtx = rotatedCanvas.getContext('2d');
+                rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+                rotatedCtx.rotate(degrees * Math.PI / 180);
+                rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+                
+                displayProcessedImage(rotatedCanvas);
+                showToast(`Đã xoay ${degrees}°`, 'success');
+            }
+            
+            document.getElementById('btnFlipH').addEventListener('click', () => flipImage(true, false));
+            document.getElementById('btnFlipV').addEventListener('click', () => flipImage(false, true));
+            
+            function flipImage(horizontal, vertical) {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const { canvas } = createCanvas(currentImage);
+                const flippedCanvas = document.createElement('canvas');
+                flippedCanvas.width = canvas.width;
+                flippedCanvas.height = canvas.height;
+                const flippedCtx = flippedCanvas.getContext('2d');
+                
+                flippedCtx.translate(horizontal ? canvas.width : 0, vertical ? canvas.height : 0);
+                flippedCtx.scale(horizontal ? -1 : 1, vertical ? -1 : 1);
+                flippedCtx.drawImage(canvas, 0, 0);
+                
+                displayProcessedImage(flippedCanvas);
+                showToast(`Đã flip ${horizontal ? 'ngang' : 'dọc'}`, 'success');
+            }
+            
+            document.getElementById('btnWatermark').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const text = document.getElementById('watermarkText').value;
+                if (!text) return showToast('Nhập text watermark', 'error');
+                
+                const { canvas, ctx } = createCanvas(currentImage);
+                const x = parseInt(document.getElementById('watermarkX').value);
+                const y = parseInt(document.getElementById('watermarkY').value);
+                const color = document.getElementById('watermarkColor').value;
+                const size = parseInt(document.getElementById('watermarkSize').value);
+                
+                ctx.font = `${size}px Arial`;
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
+                
+                displayProcessedImage(canvas);
+                showToast('Đã thêm watermark', 'success');
+            });
+            
+            document.getElementById('btnExtractColors').addEventListener('click', () => {
+                if (!currentImage) return showToast('Vui lòng chọn ảnh trước', 'error');
+                const { canvas, ctx } = createCanvas(currentImage);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                const colorMap = new Map();
+                
+                for (let i = 0; i < data.length; i += 400) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const hex = '#' + [r, g, b].map(x => {
+                        const hex = x.toString(16);
+                        return hex.length === 1 ? '0' + hex : hex;
+                    }).join('');
+                    colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
+                }
+                
+                const sortedColors = Array.from(colorMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                const palette = document.getElementById('colorPalette');
+                palette.innerHTML = sortedColors.map(([color]) => 
+                    `<div style="width:100%; height:40px; background:${color}; border-radius:4px; cursor:pointer; border:2px solid var(--glass-border);" title="${color}" onclick="navigator.clipboard.writeText('${color}'); showToast('Đã copy màu', 'success');"></div>`
+                ).join('');
+                showToast('Đã trích xuất màu', 'success');
+            });
+            
+            function displayProcessedImage(canvas, dataUrl = null) {
+                const processedImg = document.getElementById('processedImage');
+                const processedCanvas = document.getElementById('processedCanvas');
+                
+                if (dataUrl) {
+                    processedImg.src = dataUrl;
+                    processedImg.style.display = 'block';
+                    processedCanvas.style.display = 'none';
+                } else {
+                    processedCanvas.width = canvas.width;
+                    processedCanvas.height = canvas.height;
+                    const ctx = processedCanvas.getContext('2d');
+                    ctx.drawImage(canvas, 0, 0);
+                    processedCanvas.style.display = 'block';
+                    processedImg.style.display = 'none';
+                }
+                
+                document.getElementById('processedSize').textContent = `${canvas.width} × ${canvas.height}px`;
+                document.getElementById('processedInfo').style.display = 'block';
+                document.getElementById('btnDownloadImage').style.display = 'inline-block';
+                imageCanvas = canvas;
+            }
+            
+            document.getElementById('btnDownloadImage').addEventListener('click', () => {
+                if (!imageCanvas) return;
+                const format = document.getElementById('compressFormat')?.value || 'png';
+                imageCanvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `processed_image.${format}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('Đã tải ảnh', 'success');
+                }, `image/${format}`, 0.9);
+            });
+            
+            document.getElementById('btnResetImage').addEventListener('click', () => {
+                document.getElementById('imageInput').value = '';
+                document.getElementById('imagePreviewContainer').style.display = 'none';
+                currentImage = null;
+                imageCanvas = null;
+                showToast('Đã reset', 'success');
+            });
+            
+            // ===== File Processor =====
+            setupDropZone(document.getElementById('renameDropZone'), document.getElementById('renameFiles'));
+            document.getElementById('renameFiles').addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                const list = document.getElementById('renameFileList');
+                list.innerHTML = files.map((f, i) => `<div style="padding:5px; border-bottom:1px solid var(--glass-border);">${i+1}. ${f.name}</div>`).join('');
+                list.style.display = 'block';
+            });
+            
+            document.getElementById('btnBatchRename').addEventListener('click', () => {
+                const files = Array.from(document.getElementById('renameFiles').files);
+                if (files.length === 0) return showToast('Chọn file trước', 'error');
+                const pattern = document.getElementById('renamePattern').value;
+                if (!pattern) return showToast('Nhập pattern', 'error');
+                
+                files.forEach((file, i) => {
+                    const ext = file.name.split('.').pop();
+                    const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+                    let newName = pattern
+                        .replace(/{n}/g, String(i + 1).padStart(3, '0'))
+                        .replace(/{name}/g, nameWithoutExt)
+                        .replace(/{ext}/g, ext);
+                    if (!newName.includes('.')) newName += '.' + ext;
+                    
+                    const blob = file.slice(0, file.size, file.type);
+                    const newFile = new File([blob], newName, { type: file.type });
+                    const url = URL.createObjectURL(newFile);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = newName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+                showToast(`Đã đổi tên ${files.length} file`, 'success');
+            });
+            
+            setupDropZone(document.getElementById('sizeCalcDropZone'), document.getElementById('sizeCalcFiles'));
+            document.getElementById('sizeCalcFiles').addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                let totalSize = 0;
+                let largestFile = { name: '', size: 0 };
+                
+                files.forEach(file => {
+                    totalSize += file.size;
+                    if (file.size > largestFile.size) {
+                        largestFile = { name: file.name, size: file.size };
+                    }
+                });
+                
+                document.getElementById('totalFiles').textContent = files.length;
+                document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+                document.getElementById('largestFile').textContent = `${largestFile.name} (${formatFileSize(largestFile.size)})`;
+                document.getElementById('sizeCalcResults').style.display = 'block';
+            });
+            
+            setupDropZone(document.getElementById('convertFileDropZone'), document.getElementById('convertFileInput'));
+            document.getElementById('btnFileConvert').addEventListener('click', () => {
+                const file = document.getElementById('convertFileInput').files[0];
+                if (!file) return showToast('Chọn file trước', 'error');
+                const format = document.getElementById('fileConvertFormat').value;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let content = e.target.result;
+                    let blob;
+                    
+                    if (format === 'json') {
+                        try {
+                            content = JSON.stringify(JSON.parse(content), null, 2);
+                        } catch {
+                            content = JSON.stringify({ content: content }, null, 2);
+                        }
+                        blob = new Blob([content], { type: 'application/json' });
+                    } else if (format === 'csv') {
+                        blob = new Blob([content], { type: 'text/csv' });
+                    } else {
+                        blob = new Blob([content], { type: 'text/plain' });
+                    }
+                    
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name.split('.')[0] + '.' + format;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('Đã convert file', 'success');
+                };
+                reader.readAsText(file);
+            });
+            
+            document.getElementById('btnCountLines').addEventListener('click', () => {
+                const text = document.getElementById('textFileInput').value;
+                const lines = text.split('\n').length;
+                document.getElementById('textFileStats').innerHTML = `<strong>Số dòng:</strong> ${lines}`;
+                document.getElementById('textFileStats').style.display = 'block';
+            });
+            
+            document.getElementById('btnCountWords').addEventListener('click', () => {
+                const text = document.getElementById('textFileInput').value;
+                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                document.getElementById('textFileStats').innerHTML = `<strong>Số từ:</strong> ${words}`;
+                document.getElementById('textFileStats').style.display = 'block';
+            });
+            
+            document.getElementById('btnRemoveDuplicates').addEventListener('click', () => {
+                const text = document.getElementById('textFileInput').value;
+                const lines = text.split('\n');
+                const unique = [...new Set(lines)];
+                document.getElementById('textFileInput').value = unique.join('\n');
+                showToast(`Đã xóa ${lines.length - unique.length} dòng trùng`, 'success');
+            });
+            
+            document.getElementById('btnSortLines').addEventListener('click', () => {
+                const text = document.getElementById('textFileInput').value;
+                const lines = text.split('\n').sort();
+                document.getElementById('textFileInput').value = lines.join('\n');
+                showToast('Đã sắp xếp', 'success');
+            });
+            
+            setupDropZone(document.getElementById('searchFileDropZone'), document.getElementById('searchFileInput'));
+            document.getElementById('btnFileSearch').addEventListener('click', () => {
+                const file = document.getElementById('searchFileInput').files[0];
+                const searchTerm = document.getElementById('fileSearchInput').value;
+                if (!file || !searchTerm) return showToast('Chọn file và nhập từ khóa', 'error');
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const caseSensitive = document.getElementById('caseSensitive').checked;
+                    const regex = new RegExp(caseSensitive ? searchTerm : searchTerm, 'gi');
+                    const matches = content.match(regex);
+                    const results = document.getElementById('searchResults');
+                    
+                    if (matches) {
+                        results.innerHTML = `<div style="margin-bottom:10px;"><strong>Tìm thấy:</strong> ${matches.length} kết quả</div>`;
+                        const lines = content.split('\n');
+                        lines.forEach((line, i) => {
+                            if (regex.test(line)) {
+                                const highlighted = line.replace(regex, `<mark style="background:var(--accent-color); color:white; padding:2px 4px; border-radius:3px;">$&</mark>`);
+                                results.innerHTML += `<div style="padding:5px; border-bottom:1px solid var(--glass-border);">Dòng ${i+1}: ${highlighted}</div>`;
+                            }
+                        });
+                    } else {
+                        results.innerHTML = '<div>Không tìm thấy kết quả</div>';
+                    }
+                    results.style.display = 'block';
+                };
+                reader.readAsText(file);
+            });
+            
+            // Optimized loading - delay animations
+            requestAnimationFrame(() => {
+                document.body.classList.add('loaded');
+                document.querySelector('.sidebar')?.classList.add('loaded');
+            });
+        });
+    </script>
+</body>
+</html>
