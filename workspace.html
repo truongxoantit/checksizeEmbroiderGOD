@@ -1,0 +1,4259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TX Workspace - Bộ công cụ tổng hợp</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg-primary: #0f0f1e;
+      --bg-secondary: #1a1a2e;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --bg-hover: rgba(255, 255, 255, 0.08);
+      --bg-sidebar: rgba(26, 26, 46, 0.95);
+      --accent-1: #ff6b9d;
+      --accent-2: #4ecdc4;
+      --accent-3: #45b7d1;
+      --accent-4: #f9ca24;
+      --accent-5: #a29bfe;
+      --text-primary: #ffffff;
+      --text-secondary: #c8c8d8;
+      --text-muted: #7a7a8a;
+      --border: rgba(255, 255, 255, 0.12);
+      --border-color: rgba(255, 255, 255, 0.12);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 40px rgba(255, 107, 157, 0.4);
+      --radius: 20px;
+      --radius-sm: 14px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    :root.light {
+      --bg-primary: #f5f7fa;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f8f9fa;
+      --bg-sidebar: rgba(255, 255, 255, 0.9);
+      --accent-1: #ff6b6b;
+      --accent-2: #4ecdc4;
+      --accent-3: #45b7d1;
+      --accent-4: #f9ca24;
+      --accent-5: #6c5ce7;
+      --text-primary: #1a1a2e;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border: rgba(0, 0, 0, 0.1);
+      --border-color: rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.15);
+      --shadow-glow: 0 0 30px rgba(255, 107, 107, 0.2);
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: var(--transition);
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(255, 107, 157, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(162, 155, 254, 0.12) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 1;
+      animation: gradientShift 20s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { 
+        background: 
+          radial-gradient(circle at 10% 20%, rgba(255, 107, 107, 0.15) 0%, transparent 40%),
+          radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.15) 0%, transparent 40%),
+          radial-gradient(circle at 50% 50%, rgba(108, 92, 231, 0.1) 0%, transparent 50%);
+      }
+      50% { 
+        background: 
+          radial-gradient(circle at 90% 20%, rgba(78, 205, 196, 0.15) 0%, transparent 40%),
+          radial-gradient(circle at 10% 80%, rgba(255, 107, 107, 0.15) 0%, transparent 40%),
+          radial-gradient(circle at 50% 50%, rgba(162, 155, 254, 0.12) 0%, transparent 55%);
+      }
+    }
+    
+    /* Main Layout */
+    .app-wrapper {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 300px;
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(30px) saturate(180%);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .sidebar-header {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(108, 92, 231, 0.1));
+    }
+    
+    .sidebar-logo {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-5));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-logo::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    .sidebar-logo-text h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-5));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.2rem;
+      letter-spacing: -0.5px;
+    }
+    
+    .sidebar-logo-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .sidebar-nav {
+      padding: 1rem;
+    }
+    
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+    
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding: 0 0.75rem;
+      font-weight: 600;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-secondary);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid transparent;
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+      transform: scaleY(0);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(108, 92, 231, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: var(--radius-sm);
+    }
+    
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      transform: translateX(6px);
+      border-color: var(--border);
+    }
+    
+    .nav-item:hover::after {
+      opacity: 1;
+    }
+    
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(108, 92, 231, 0.15));
+      color: var(--text-primary);
+      transform: translateX(6px);
+      border-color: var(--accent-1);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+    }
+    
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    
+    .nav-item.active::after {
+      opacity: 1;
+    }
+    
+    .nav-item i {
+      width: 24px;
+      text-align: center;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .nav-item:hover i,
+    .nav-item.active i {
+      transform: scale(1.2);
+    }
+    
+    .nav-item span {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 300px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Top Header */
+    .top-header {
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(30px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .header-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-5));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+      position: relative;
+    }
+    
+    .header-title::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      border-radius: 2px;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .action-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: var(--shadow-glow);
+      border-color: var(--accent-1);
+      background: var(--bg-hover);
+    }
+    
+    .action-btn:hover::before {
+      opacity: 0.2;
+    }
+    
+    .action-btn i {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    
+    .welcome-section {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-5), var(--accent-2));
+      border-radius: var(--radius);
+      padding: 3rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+    
+    .welcome-section::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(78, 205, 196, 0.2) 0%, transparent 60%);
+      animation: rotate 25s linear infinite reverse;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .welcome-section h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+      color: white;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      letter-spacing: -1px;
+    }
+    
+    .welcome-section p {
+      font-size: 1.15rem;
+      color: rgba(255, 255, 255, 0.95);
+      position: relative;
+      z-index: 1;
+      font-weight: 500;
+    }
+    
+    /* Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .tool-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-5));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .tool-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(108, 92, 231, 0.05));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .tool-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .tool-card:hover::after {
+      opacity: 1;
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      border-color: var(--accent-1);
+      background: var(--bg-hover);
+    }
+    
+    .tool-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-5));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .tool-card:hover .tool-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 12px 30px rgba(255, 107, 107, 0.5);
+    }
+    
+    .tool-card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    
+    .tool-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+    
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .mobile-menu-toggle:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-1);
+    }
+    
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .content-area {
+        padding: 1rem;
+      }
+      
+      .welcome-section {
+        padding: 1.5rem;
+      }
+      
+      .welcome-section h1 {
+        font-size: 1.5rem;
+      }
+      
+      .top-header {
+        padding: 1rem;
+      }
+      
+      .header-title {
+        font-size: 1.2rem;
+      }
+    }
+    
+    
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-content {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      max-width: 1200px;
+      max-height: 90vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+    
+    .modal-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+    }
+    
+    .modal-header h2 {
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+    
+    .close-btn:hover {
+      background: var(--accent-1);
+      transform: rotate(90deg);
+    }
+    
+    .modal-body {
+      padding: 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    /* Tool Sections */
+    .tool-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    
+    .tool-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .tool-section-title i {
+      color: var(--accent-1);
+      font-size: 1.2rem;
+    }
+    
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+    }
+    
+    .tool-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .stats-card {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(108, 92, 231, 0.1));
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-1);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Search Bar */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.75rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    /* Suggestions */
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      z-index: 10;
+      display: none;
+    }
+    
+    .suggestion-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+    
+    .suggestion-item:hover,
+    .suggestion-item.highlighted {
+      background: var(--bg-hover);
+      padding-left: 1.5rem;
+      color: var(--accent-1);
+    }
+    
+    .suggestion-item mark {
+      background: var(--accent-1);
+      color: white;
+      padding: 0.1rem 0.2rem;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    
+    /* Chips */
+    .chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.75rem 0;
+    }
+    
+    .chip {
+      padding: 0.35rem 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-weight: 500;
+    }
+    
+    .chip:hover {
+      background: var(--accent-1);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .chip.active {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+      color: white;
+      border-color: transparent;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-secondary);
+    }
+    
+    th {
+      background: var(--bg-card);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--accent-1);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+    
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+    }
+    
+    tr:hover td {
+      background: var(--bg-hover);
+    }
+    
+    /* Compact table for embroidery results */
+    .compact-table th,
+    .compact-table td {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    
+    .compact-table th {
+      font-size: 0.75rem;
+      padding: 0.5rem 0.6rem;
+    }
+    
+    /* Form Elements */
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+    
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-1);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-1);
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--bg-secondary);
+    }
+    
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-1);
+      background: var(--bg-hover);
+    }
+    
+    .drop-zone i {
+      font-size: 2.5rem;
+      color: var(--accent-1);
+      margin-bottom: 0.75rem;
+    }
+    
+    .drop-zone p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 250px;
+      font-size: 0.85rem;
+      animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .toast.success {
+      border-left: 4px solid #10b981;
+    }
+    
+    .toast.error {
+      border-left: 4px solid #ef4444;
+    }
+    
+    .toast.info {
+      border-left: 4px solid var(--accent-1);
+    }
+    
+    /* Utility Grid */
+    .utility-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    
+    .utility-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+    
+    .utility-card h4 {
+      margin-bottom: 0.75rem;
+      color: var(--accent-1);
+      font-size: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .app-wrapper {
+        padding: 0.75rem;
+      }
+      
+      .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 0.75rem 1rem;
+      }
+      
+      .modal-content {
+        max-height: 95vh;
+      }
+      
+      .utility-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Loading Animation */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+      20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent-1);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-1);
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-2);
+    }
+    
+    /* Chat Widget */
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      font-family: inherit;
+    }
+    
+    .chat-toggle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .chat-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .chat-toggle .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--accent-4);
+      color: var(--bg-primary);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    
+    .chat-container {
+      position: absolute;
+      bottom: 80px;
+      right: 0;
+      width: 320px;
+      height: 450px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    .chat-container.open {
+      display: flex;
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .chat-header {
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .chat-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .chat-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+    
+    .chat-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      max-width: 80%;
+    }
+    
+    .chat-message.own {
+      align-self: flex-end;
+    }
+    
+    .chat-message.other {
+      align-self: flex-start;
+    }
+    
+    .chat-message-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    
+    .chat-message.own .chat-message-header {
+      justify-content: flex-end;
+    }
+    
+    .chat-message-name {
+      font-weight: 600;
+      color: var(--accent-1);
+    }
+    
+    .chat-message-time {
+      color: var(--text-muted);
+    }
+    
+    .chat-message-content {
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    
+    .chat-message.own .chat-message-content {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .chat-message.other .chat-message-content {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+    
+    .chat-input-container {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-secondary);
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+    
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--accent-1);
+    }
+    
+    .chat-send {
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border: none;
+      border-radius: var(--radius-sm);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    
+    .chat-send:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .chat-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    @media (max-width: 768px) {
+      .chat-container {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 100px);
+        bottom: 80px;
+        right: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">TX</div>
+        <div class="sidebar-logo-text">
+          <h2>TX Workspace</h2>
+          <p>Bộ công cụ tổng hợp</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Công cụ chính</div>
+          <div class="nav-item active" data-tool="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Trang chủ</span>
+          </div>
+          <div class="nav-item" data-tool="embroidery">
+            <i class="fas fa-ruler-combined"></i>
+            <span>Tra cứu kích thước thêu</span>
+          </div>
+          <div class="nav-item" data-tool="text">
+            <i class="fas fa-font"></i>
+            <span>Xử lý văn bản</span>
+          </div>
+          <div class="nav-item" data-tool="file">
+            <i class="fas fa-file"></i>
+            <span>Xử lý file</span>
+          </div>
+          <div class="nav-item" data-tool="image">
+            <i class="fas fa-image"></i>
+            <span>Xử lý ảnh</span>
+          </div>
+          <div class="nav-item" data-tool="utilities">
+            <i class="fas fa-tools"></i>
+            <span>Công cụ tiện ích</span>
+          </div>
+          <div class="nav-item" data-tool="csv">
+            <i class="fas fa-table"></i>
+            <span>Tải ảnh từ CSV</span>
+          </div>
+        </div>
+      </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="header-title" id="headerTitle">Trang chủ</h1>
+        </div>
+        <div class="header-actions">
+          <div class="action-btn" id="adminBtn" title="Quản lý Admin - Chỉnh sửa kích thước sản phẩm" style="display: none;">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="action-btn" id="loginBtn" title="Đăng nhập Admin để chỉnh sửa kích thước sản phẩm">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div class="action-btn" id="themeToggle" title="Đổi theme">
+            <i class="fas fa-moon"></i>
+          </div>
+          <div class="action-btn" id="fullscreenToggle" title="Toàn màn hình">
+            <i class="fas fa-expand"></i>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Dashboard View -->
+        <div id="dashboardView">
+          <div class="welcome-section">
+            <h1>Chào mừng đến với TX Workspace</h1>
+            <p>Bộ công cụ tổng hợp mạnh mẽ cho công việc hàng ngày của bạn</p>
+          </div>
+          
+          <div class="tools-grid" id="toolsGrid">
+            <div class="tool-card" data-tool="embroidery">
+              <div class="tool-icon">
+                <i class="fas fa-ruler-combined"></i>
+              </div>
+              <h3>Tra cứu kích thước thêu</h3>
+              <p>Tìm kiếm và xem thông tin kích thước thêu cho các sản phẩm khác nhau</p>
+            </div>
+            
+            <div class="tool-card" data-tool="text">
+              <div class="tool-icon">
+                <i class="fas fa-font"></i>
+              </div>
+              <h3>Xử lý văn bản</h3>
+              <p>Chuyển đổi định dạng, xử lý và phân tích văn bản một cách nhanh chóng</p>
+            </div>
+            
+            <div class="tool-card" data-tool="file">
+              <div class="tool-icon">
+                <i class="fas fa-file"></i>
+              </div>
+              <h3>Xử lý file</h3>
+              <p>Quản lý, chuyển đổi và xử lý các loại file khác nhau</p>
+            </div>
+            
+            <div class="tool-card" data-tool="image">
+              <div class="tool-icon">
+                <i class="fas fa-image"></i>
+              </div>
+              <h3>Xử lý ảnh</h3>
+              <p>Chỉnh sửa, resize, compress và xử lý hình ảnh trực tuyến</p>
+            </div>
+            
+            <div class="tool-card" data-tool="utilities">
+              <div class="tool-icon">
+                <i class="fas fa-tools"></i>
+              </div>
+              <h3>Công cụ tiện ích</h3>
+              <p>Bộ sưu tập các công cụ tiện ích: QR Code, Password, Base64, JSON...</p>
+            </div>
+            
+            <div class="tool-card" data-tool="csv">
+              <div class="tool-icon">
+                <i class="fas fa-table"></i>
+              </div>
+              <h3>Tải ảnh từ CSV</h3>
+              <p>Tự động tải ảnh hàng loạt từ file CSV với tên theo PO và Item ID</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Chat Widget -->
+  <div class="chat-widget">
+    <button class="chat-toggle" id="chatToggle" title="Chat">
+      <i class="fas fa-comments"></i>
+      <span class="badge" id="chatBadge" style="display: none;">0</span>
+    </button>
+    <div class="chat-container" id="chatContainer">
+      <div class="chat-header">
+        <h3><i class="fas fa-comments"></i> Chat</h3>
+        <button class="chat-close" id="chatClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be rendered here -->
+      </div>
+      <div class="chat-input-container">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Nhập tin nhắn...">
+        <button class="chat-send" id="chatSend">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal" style="display: none;" onclick="if(event.target.id === 'loginModal') closeLoginModal()">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: white; border-radius: var(--radius) var(--radius) 0 0;">
+        <h2 style="color: white; margin: 0;"><i class="fas fa-user-shield"></i> Đăng nhập Admin</h2>
+        <div class="close-btn" onclick="closeLoginModal()" style="color: white;">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-lg);">
+            <i class="fas fa-user-shield" style="font-size: 2.5rem; color: white;"></i>
+          </div>
+          <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Quản trị viên</h3>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Đăng nhập để chỉnh sửa kích thước sản phẩm và quản lý dữ liệu</p>
+        </div>
+        
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; border-left: 4px solid var(--accent-1);">
+          <div style="display: flex; align-items: start; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <i class="fas fa-check-circle" style="color: var(--accent-1); margin-top: 0.25rem;"></i>
+            <div>
+              <strong style="color: var(--text-primary);">Chức năng Admin:</strong>
+              <ul style="margin: 0.5rem 0 0 0; padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.9rem;">
+                <li>Thêm và chỉnh sửa sản phẩm</li>
+                <li>Quản lý kích thước thêu</li>
+                <li>Thêm/sửa/xóa Position và Size</li>
+                <li>Export/Import dữ liệu</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 1.25rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-user" style="color: var(--accent-1);"></i>
+            <span>Username <span style="color: var(--accent-1);">*</span></span>
+          </label>
+          <input type="text" id="adminUsername" placeholder="Nhập username" 
+            style="width: 100%; padding: 0.875rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;"
+            onkeypress="if(event.key === 'Enter') document.getElementById('adminPassword').focus()">
+        </div>
+        
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-lock" style="color: var(--accent-1);"></i>
+            <span>Password <span style="color: var(--accent-1);">*</span></span>
+          </label>
+          <input type="password" id="adminPassword" placeholder="Nhập password" 
+            style="width: 100%; padding: 0.875rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;"
+            onkeypress="if(event.key === 'Enter') adminLogin()">
+        </div>
+        
+        <button class="btn btn-primary" onclick="adminLogin()" style="width: 100%; padding: 0.875rem; font-size: 1rem; font-weight: 600;">
+          <i class="fas fa-sign-in-alt"></i> Đăng nhập
+        </button>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center;">
+          <p style="margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+            <i class="fas fa-info-circle" style="color: var(--accent-1);"></i> Thông tin đăng nhập mặc định:
+          </p>
+          <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="font-size: 0.85rem;">
+              <strong style="color: var(--accent-1);">Username:</strong> <code style="background: var(--bg-primary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--text-primary);">admin</code>
+            </div>
+            <div style="font-size: 0.85rem;">
+              <strong style="color: var(--accent-1);">Password:</strong> <code style="background: var(--bg-primary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--text-primary);">admin123</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div class="modal-overlay" id="adminModal" style="display: none;" onclick="if(event.target.id === 'adminModal') closeAdminModal()">
+    <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-shield"></i> Admin Panel - Quản lý dữ liệu</h2>
+        <div class="close-btn" onclick="closeAdminModal()">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body" style="overflow-y: auto;">
+        <div class="btn-group" style="margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="showAddProductForm()"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+          <button class="btn btn-secondary" onclick="exportAdminData()"><i class="fas fa-download"></i> Export JSON</button>
+          <button class="btn btn-secondary" onclick="importAdminData()"><i class="fas fa-upload"></i> Import JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImportFile(event)">
+          <button class="btn btn-danger" onclick="resetToDefault()"><i class="fas fa-undo"></i> Reset về mặc định</button>
+          <button class="btn btn-secondary" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+        </div>
+        <div id="adminContent">
+          <!-- Content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Form Modal -->
+  <div class="modal-overlay" id="productFormModal" style="display: none;" onclick="if(event.target.id === 'productFormModal') closeProductForm()">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2 id="productFormTitle"><i class="fas fa-plus"></i> Thêm sản phẩm mới</h2>
+        <div class="close-btn" onclick="closeProductForm()">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 1.25rem;">
+          <label>Tên sản phẩm <span style="color: var(--accent-1);">*</span></label>
+          <input type="text" id="productNameInput" placeholder="Nhập tên sản phẩm..." onkeypress="if(event.key === 'Enter') saveProduct()">
+        </div>
+        <div class="btn-group" style="justify-content: flex-end; margin-top: 1.5rem;">
+          <button class="btn btn-secondary" onclick="closeProductForm()">Hủy</button>
+          <button class="btn btn-primary" onclick="saveProduct()"><i class="fas fa-save"></i> Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Position Form Modal -->
+  <div class="modal-overlay" id="positionFormModal" style="display: none;" onclick="if(event.target.id === 'positionFormModal') closePositionForm()">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 id="positionFormTitle"><i class="fas fa-plus"></i> Thêm Position</h2>
+        <div class="close-btn" onclick="closePositionForm()">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 1.25rem;">
+          <label>Khu vực (Position) <span style="color: var(--accent-1);">*</span></label>
+          <input type="text" id="positionInput" placeholder="Ví dụ: Middle, Chest, Back..." onkeypress="if(event.key === 'Enter') document.getElementById('costInput').focus()">
+        </div>
+        <div class="input-group" style="margin-bottom: 1.25rem;">
+          <label>Vị trí (Cost) <span style="color: var(--accent-1);">*</span></label>
+          <input type="text" id="costInput" placeholder="Ví dụ: 4, B, 11..." onkeypress="if(event.key === 'Enter') savePosition()">
+        </div>
+        <div class="btn-group" style="justify-content: flex-end; margin-top: 1.5rem;">
+          <button class="btn btn-secondary" onclick="closePositionForm()">Hủy</button>
+          <button class="btn btn-primary" onclick="savePosition()"><i class="fas fa-save"></i> Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Size Form Modal -->
+  <div class="modal-overlay" id="sizeFormModal" style="display: none;" onclick="if(event.target.id === 'sizeFormModal') closeSizeForm()">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 id="sizeFormTitle"><i class="fas fa-plus"></i> Thêm Size</h2>
+        <div class="close-btn" onclick="closeSizeForm()">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 1.25rem;">
+          <label>Size <span style="color: var(--accent-1);">*</span></label>
+          <input type="text" id="sizeInput" placeholder="Ví dụ: XS, S, M, L, All..." onkeypress="if(event.key === 'Enter') document.getElementById('maxHInput').focus()">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="input-group">
+            <label>Max Height (mm) <span style="color: var(--accent-1);">*</span></label>
+            <input type="number" id="maxHInput" placeholder="Ví dụ: 145" min="0" onkeypress="if(event.key === 'Enter') document.getElementById('maxWInput').focus()">
+          </div>
+          <div class="input-group">
+            <label>Max Width (mm) <span style="color: var(--accent-1);">*</span></label>
+            <input type="number" id="maxWInput" placeholder="Ví dụ: 165" min="0" onkeypress="if(event.key === 'Enter') saveSize()">
+          </div>
+        </div>
+        <div class="btn-group" style="justify-content: flex-end; margin-top: 1.5rem;">
+          <button class="btn btn-secondary" onclick="closeSizeForm()">Hủy</button>
+          <button class="btn btn-primary" onclick="saveSize()"><i class="fas fa-save"></i> Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle"><i class="fas fa-cog"></i> Công cụ</h2>
+        <div class="close-btn" id="closeModal">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content will be loaded here -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // ===== UTILITIES =====
+    const mm = (x) => x;
+    const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; };
+    
+    function expandSizes(raw) {
+      if (Array.isArray(raw)) return raw;
+      if (!raw || typeof raw !== 'string') return [String(raw || 'All')];
+      const cleaned = raw.replaceAll('\u00a0', ' ').replace(/\s+/g, ' ');
+      return cleaned.replaceAll(' - ', '-').replaceAll(' – ', '-').replaceAll(',', '-')
+        .split(/-|\/|\u2013/).map(s => s.trim()).filter(Boolean);
+    }
+    const makeRows = (sizes, h, w) => expandSizes(sizes).map(sz => ({ size: sz || 'All', maxH: mm(h), maxW: mm(w) }));
+    
+    // ===== EMBROIDERY DATA =====
+    const group_COMMON_TOPS = [
+      { position: 'Middle', cost: 4, rows: [...makeRows(['XS'], 195, 275), ...makeRows(['S'], 195, 285), ...makeRows(['M'], 195, 295), ...makeRows(['L'], 195, 295), ...makeRows(['XL'], 250, 320), ...makeRows(['2XL'], 250, 330), ...makeRows(['3XL'], 250, 340), ...makeRows(['4XL'], 250, 360), ...makeRows(['5XL'], 250, 370)] },
+      { position: 'Chest', cost: 3, rows: [...makeRows(['XS'], 120, 120), ...makeRows(['S'], 130, 130), ...makeRows(['M'], 140, 140), ...makeRows(['L'], 150, 150), ...makeRows(['XL'], 150, 150), ...makeRows(['2XL'], 150, 150), ...makeRows(['3XL'], 160, 160), ...makeRows(['4XL'], 170, 170), ...makeRows(['5XL'], 175, 175)] },
+      { position: 'Neck', cost: 1, rows: [...makeRows(['XS'], 120, 120), ...makeRows(['S'], 130, 130), ...makeRows(['M'], 135, 135), ...makeRows(['L'], 135, 135), ...makeRows(['XL'], 145, 145), ...makeRows(['2XL'], 145, 145), ...makeRows(['3XL'], 155, 155), ...makeRows(['4XL'], 165, 165), ...makeRows(['5XL'], 170, 170)] },
+      { position: 'Arm', cost: 5, rows: [...makeRows(['All'], 138, 78)] },
+      { position: 'Arm', cost: 6, rows: [...makeRows(['All'], 138, 78)] },
+      { position: 'Cuff', cost: 8, rows: [...makeRows(['All'], 38, 78)] },
+      { position: 'Cuff', cost: 9, rows: [...makeRows(['All'], 38, 78)] },
+      { position: 'Back', cost: 'B', rows: [...makeRows(['XS'], 195, 275), ...makeRows(['S'], 195, 285), ...makeRows(['M'], 195, 295), ...makeRows(['L'], 195, 295), ...makeRows(['XL'], 250, 320), ...makeRows(['2XL'], 250, 330), ...makeRows(['3XL'], 250, 340), ...makeRows(['4XL'], 250, 360), ...makeRows(['5XL'], 250, 370)] },
+      { position: 'Pocket', cost: 'P', rows: [...makeRows(['All'], 38, 78)] },
+    ];
+    
+    const group_LONG_SLEEVE_TEE = [
+      { position: 'Front', cost: 'F', rows: [...makeRows(['XS'], 195, 275), ...makeRows(['S'], 195, 285), ...makeRows(['M'], 195, 295), ...makeRows(['L'], 195, 295), ...makeRows(['XL'], 250, 320), ...makeRows(['2XL'], 250, 330), ...makeRows(['3XL'], 250, 340), ...makeRows(['4XL'], 250, 360), ...makeRows(['5XL'], 250, 370)] },
+      { position: 'Chest', cost: 3, rows: [...makeRows(['XS'], 120, 120), ...makeRows(['S'], 130, 130), ...makeRows(['M'], 140, 140), ...makeRows(['L'], 150, 150), ...makeRows(['XL'], 150, 150), ...makeRows(['2XL'], 150, 150), ...makeRows(['3XL'], 160, 160), ...makeRows(['4XL'], 170, 170), ...makeRows(['5XL'], 175, 175)] },
+      { position: 'Neck', cost: 1, rows: [...makeRows(['XS'], 120, 120), ...makeRows(['S'], 130, 130), ...makeRows(['M'], 135, 135), ...makeRows(['L'], 135, 135), ...makeRows(['XL'], 145, 145), ...makeRows(['2XL'], 145, 145), ...makeRows(['3XL'], 155, 155), ...makeRows(['4XL'], 165, 165), ...makeRows(['5XL'], 170, 170)] },
+      { position: 'Sleeve', cost: 5, rows: [...makeRows(['All'], 138, 78)] },
+      { position: 'Sleeve', cost: 6, rows: [...makeRows(['All'], 138, 78)] },
+    ];
+    
+    const group_SLIT_SIDE = [
+      { position: 'Front', cost: 'F', rows: [...makeRows(['XS'], 195, 275), ...makeRows(['S'], 195, 285), ...makeRows(['M'], 195, 295), ...makeRows(['L'], 195, 295), ...makeRows(['XL'], 250, 320), ...makeRows(['2XL'], 250, 330), ...makeRows(['3XL'], 250, 340), ...makeRows(['4XL'], 250, 360), ...makeRows(['5XL'], 250, 370)] },
+      { position: 'Slit Side', cost: 'E', rows: [...makeRows(['All'], 165, 165)] },
+      { position: 'Slit Side', cost: 'S', rows: [...makeRows(['All'], 165, 165)] },
+      { position: 'Sleeve', cost: 5, rows: [...makeRows(['All'], 138, 78)] },
+      { position: 'Sleeve', cost: 6, rows: [...makeRows(['All'], 138, 78)] },
+    ];
+    
+    const EMBROIDERY_DATA = {
+      "Embroidered Hoodie": group_COMMON_TOPS,
+      "Embroidered T-Shirt": group_COMMON_TOPS,
+      "Embroidered Sweatshirt": group_COMMON_TOPS,
+      "Polo Shirt": group_COMMON_TOPS,
+      "Embroidered T-Shirt Pocket": group_COMMON_TOPS,
+      "Women Sweater": group_COMMON_TOPS,
+      "Adult Knit Sweater": group_COMMON_TOPS,
+      "Floral Embroidery": group_COMMON_TOPS,
+      "Applique Bow": group_COMMON_TOPS,
+      "Felt Embroidered Sweatshirt": group_COMMON_TOPS,
+      "Felt Embroidered Hoodie": group_COMMON_TOPS,
+      "Felt Embroidered T-shirt": group_COMMON_TOPS,
+      "Embroidered Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Hoodie V-Notch": group_COMMON_TOPS,
+      "Embroidered T-shirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Applique Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Quarter Zip Pullover Sweatshirt": group_COMMON_TOPS,
+      "Embroidered Applique Quater Zip Pullover Sweatshirt": group_COMMON_TOPS,
+      "Embroidered Faux Fur Sweatshirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Sweatshirt MIX": group_COMMON_TOPS,
+      "Embroidered Faux Fur T-shirt V-Notch": group_COMMON_TOPS,
+      "Embroidered Long-Sleeve T-Shirt": group_LONG_SLEEVE_TEE,
+      "Slit Side Glitter Embroidery": group_SLIT_SIDE,
+      "Glitter": group_SLIT_SIDE,
+      "Hem Cut & Slit Side Glitter Embroidery": group_SLIT_SIDE,
+      "Slit Side Embroidery": group_SLIT_SIDE,
+      "Glitter Bow": group_SLIT_SIDE,
+      "Hem Cut & Slit Side Embroidery": group_SLIT_SIDE,
+      "Embroidered Shorts for Women": [
+        { position: '1 side', cost: 4, rows: [...expandSizes('XS - S-M -L').map(sz => ({ size: sz, maxH: mm(78), maxW: mm(137) })), ...expandSizes('XL - 2XL-3XL').map(sz => ({ size: sz, maxH: mm(198), maxW: mm(198) }))] },
+      ],
+      "Embroidered Sweatpants Add on": [
+        { position: 'Thigh', cost: 4, rows: [...expandSizes('XS - S-M -L').map(sz => ({ size: sz, maxH: mm(73), maxW: mm(98) })), ...expandSizes('XL - 2XL').map(sz => ({ size: sz, maxH: mm(108), maxW: mm(118) })), ...expandSizes('3XL-4XL').map(sz => ({ size: sz, maxH: mm(118), maxW: mm(137) }))] },
+        { position: 'Leg', cost: 4, rows: [{ size: 'All', maxH: mm(160), maxW: mm(87) }] },
+      ],
+      "Cap": [
+        { position: 'Front side', cost: 'F', rows: [{ size: 'All', maxH: mm(59), maxW: mm(120) }] },
+        { position: 'Back side', cost: 'B', rows: [{ size: 'All', maxH: mm(38), maxW: mm(78) }] },
+        { position: 'Left side', cost: 'L', rows: [{ size: 'All', maxH: mm(38), maxW: mm(78) }] },
+        { position: 'Right side', cost: 'R', rows: [{ size: 'All', maxH: mm(38), maxW: mm(78) }] },
+      ],
+      "Embroidery Golf Towel": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(95), maxW: mm(95) }] },
+      ],
+      "Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Muslin Blanked Embroidered": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Baby Bib Muslin": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Bib Attachment": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Ruffle Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Heirloom Lace Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Ruffle Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Classic Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Heirloom Lace Baby Knit Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Embroidered Ruffle Edge Blanket": [{ position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(295) }] }],
+      "Baby Onesie": [
+        { position: 'Middle', cost: 4, rows: [{ size: '0-3M', maxH: mm(78), maxW: mm(137) }, { size: '6M', maxH: mm(78), maxW: mm(137) }, { size: '9M', maxH: mm(78), maxW: mm(137) }, { size: '12M', maxH: mm(150), maxW: mm(150) }, { size: '18M', maxH: mm(150), maxW: mm(150) }, { size: '24M', maxH: mm(170), maxW: mm(170) }] },
+      ],
+      "Embroidered Kids Knit Sweater": [
+        { position: 'Middle', cost: 4, rows: [{ size: '0-3 months', maxH: mm(145), maxW: mm(165) }, { size: '3-6 months', maxH: mm(145), maxW: mm(165) }, { size: '9-12 months', maxH: mm(145), maxW: mm(170) }, { size: '12-18 months', maxH: mm(145), maxW: mm(195) }, { size: '18-24m or 2T', maxH: mm(145), maxW: mm(195) }] },
+      ],
+      "Embroidered Baby Girl Romper": [
+        { position: '1 side', cost: 4, rows: [{ size: '0-3M', maxH: mm(70), maxW: mm(80) }, { size: '3-6M', maxH: mm(75), maxW: mm(85) }, { size: '6-12-18M', maxH: mm(75), maxW: mm(95) }] },
+      ],
+      "Embroidered Classic Baby Sweater": [
+        { position: '1 side', cost: 4, rows: [{ size: '0-3 months', maxH: mm(190), maxW: mm(180) }, { size: '3-6 months', maxH: mm(190), maxW: mm(180) }, { size: '6-9 months', maxH: mm(195), maxW: mm(195) }, { size: '9-12 months', maxH: mm(195), maxW: mm(195) }, { size: '12-18 months', maxH: mm(195), maxW: mm(195) }, { size: '18-24 months', maxH: mm(195), maxW: mm(195) }] },
+      ],
+      "Ruffle Baby Girl Knit Romper": [
+        { position: '1 side', cost: 4, rows: [{ size: 'Newborn', maxH: mm(118), maxW: mm(148) }, { size: '0-3 Months', maxH: mm(128), maxW: mm(162) }, { size: '3-6 Months', maxH: mm(143), maxW: mm(178) }] },
+      ],
+      "Embroidered Baby Boy Knit Romper": [
+        { position: '1 side', cost: 4, rows: [{ size: 'Newborn', maxH: mm(118), maxW: mm(148) }, { size: '0-3 Months', maxH: mm(128), maxW: mm(162) }, { size: '3-6 Months', maxH: mm(143), maxW: mm(178) }] },
+      ],
+      "Body Suit Embroidered": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'Premie', maxH: mm(88), maxW: mm(98) }, { size: 'Newborn', maxH: mm(88), maxW: mm(108) }, { size: '0-3 months', maxH: mm(88), maxW: mm(118) }, { size: '3-6 months', maxH: mm(108), maxW: mm(128) }, { size: '6-12 months', maxH: mm(118), maxW: mm(138) }, { size: '12-18 months', maxH: mm(128), maxW: mm(148) }, { size: '18-24 months', maxH: mm(128), maxW: mm(168) }] },
+        { position: 'Chest', cost: 3, rows: [{ size: 'Premie', maxH: mm(33), maxW: mm(33) }, { size: 'Newborn', maxH: mm(33), maxW: mm(33) }, { size: '0-3 months', maxH: mm(38), maxW: mm(38) }, { size: '3-6 months', maxH: mm(43), maxW: mm(43) }, { size: '6-12 months', maxH: mm(43), maxW: mm(48) }, { size: '12-18 months', maxH: mm(48), maxW: mm(58) }, { size: '18-24 months', maxH: mm(58), maxW: mm(68) }] },
+      ],
+      "Baby Wool Bodysuit": [
+        { position: '1 side', cost: 4, rows: [{ size: '0-3M', maxH: mm(160), maxW: mm(160) }, { size: '3-6M', maxH: mm(160), maxW: mm(160) }, { size: '6-9M', maxH: mm(160), maxW: mm(160) }, { size: '9-12M', maxH: mm(180), maxW: mm(180) }, { size: '12-18M', maxH: mm(180), maxW: mm(180) }, { size: '18-24M', maxH: mm(180), maxW: mm(180) }] },
+      ],
+      "Embroidered Premium Burp Cloth": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(165), maxW: mm(165) }] },
+      ],
+      "Denim Jacket": [
+        { position: 'Back', cost: 'B', rows: [...expandSizes('XS - S-M -L').map(sz => ({ size: sz, maxH: mm(165), maxW: mm(265) })), ...expandSizes('XL - 2XL').map(sz => ({ size: sz, maxH: mm(175), maxW: mm(275) })), { size: '3Xl', maxH: mm(185), maxW: mm(285) }, ...expandSizes('4XL-5XL').map(sz => ({ size: sz, maxH: mm(195), maxW: mm(295) }))] },
+        { position: 'Collar', cost: 11, rows: [{ size: 'All', maxH: mm(33), maxW: mm(195) }] },
+        { position: 'Shoulder', cost: 12, rows: [...expandSizes('S-M-L-XL-2XL').map(sz => ({ size: sz, maxH: mm(78), maxW: mm(195) })), ...expandSizes('3XL-4XL').map(sz => ({ size: sz, maxH: mm(58), maxW: mm(245) }))] },
+        { position: 'Arm', cost: 5, rows: [{ size: 'All', maxH: mm(38), maxW: mm(78) }] },
+        { position: 'Arm', cost: 6, rows: [{ size: 'All', maxH: mm(38), maxW: mm(78) }] },
+      ],
+      "Embroidered Linen Apron": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(245) }] },
+      ],
+      "Embroidered Linen Apron With Two Pockets Middle-Pocket": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(195), maxW: mm(245) }] },
+        { position: 'Pocket', cost: 5, rows: [...expandSizes('S - M').map(sz => ({ size: sz, maxH: mm(95), maxW: mm(70) })), { size: 'L', maxH: mm(125), maxW: mm(70) }] },
+        { position: 'Pocket', cost: 6, rows: [...expandSizes('S - M').map(sz => ({ size: sz, maxH: mm(95), maxW: mm(70) })), { size: 'L', maxH: mm(125), maxW: mm(70) }] },
+      ],
+      "Embroidered Sleep Bag": [
+        { position: 'Middle', cost: 4, rows: [...expandSizes('XS - S - M').map(sz => ({ size: sz, maxH: mm(70), maxW: mm(130) })), ...expandSizes('L - XL').map(sz => ({ size: sz, maxH: mm(82), maxW: mm(150) }))] }
+      ],
+      "Baby Knotted Cap embroidered": [
+        { position: 'Middle', cost: 4, rows: [{ size: '0-3 months', maxH: mm(28), maxW: mm(133) }, { size: '3-6 months', maxH: mm(28), maxW: mm(133) }, { size: '6-12 months', maxH: mm(28), maxW: mm(133) }, { size: '12-18 months', maxH: mm(28), maxW: mm(133) }, { size: '18-24 months', maxH: mm(28), maxW: mm(133) }] },
+      ],
+      "Baby Bow Embroidered": [
+        { position: 'Middle', cost: 4, rows: [{ size: '0-3 months', maxH: mm(28), maxW: mm(133) }, { size: '3-6 months', maxH: mm(28), maxW: mm(133) }, { size: '6-12 months', maxH: mm(28), maxW: mm(133) }, { size: '12-18 months', maxH: mm(28), maxW: mm(133) }, { size: '18-24 months', maxH: mm(28), maxW: mm(133) }, { size: '1-2 years', maxH: mm(38), maxW: mm(133) }, { size: '2-3 years', maxH: mm(38), maxW: mm(133) }, { size: '3-4 years', maxH: mm(38), maxW: mm(133) }] },
+      ],
+      "Embroidered Canvas Strap Tote Bag": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'S', maxH: mm(38), maxW: mm(115) }, { size: 'M', maxH: mm(68), maxW: mm(155) }, { size: 'L', maxH: mm(175), maxW: mm(105) }] }
+      ],
+      "Christmas Stocking": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(78), maxW: mm(135) }] },
+      ],
+      "Embroidered Dog Bandana Attachment": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'S', maxH: mm(125), maxW: mm(145) }, { size: 'L', maxH: mm(140), maxW: mm(170) }] },
+      ],
+      "Embroidered Dog Bandana": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'S', maxH: mm(125), maxW: mm(145) }, { size: 'L', maxH: mm(140), maxW: mm(170) }] },
+        { position: '1 side', cost: 4, rows: [...expandSizes('XS - S-M -L').map(sz => ({ size: sz, maxH: mm(195), maxW: mm(295) })), ...expandSizes('XL - 2XL -3XL').map(sz => ({ size: sz, maxH: mm(250), maxW: mm(325) })), ...expandSizes('4XL đến 5XL').map(sz => ({ size: sz, maxH: mm(250), maxW: mm(350) }))] }
+      ],
+      "Socks Embroider": [
+        { position: 'Middle', cost: 4, rows: [{ size: 'All', maxH: mm(38), maxW: mm(48) }] },
+      ],
+    };
+    
+    // ===== ADMIN & DATA MANAGEMENT =====
+    const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
+    let isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    let currentEmbroideryData = null;
+    
+    // Lưu bản sao dữ liệu mặc định ban đầu (trước khi load từ localStorage)
+    const DEFAULT_EMBROIDERY_DATA = JSON.parse(JSON.stringify(EMBROIDERY_DATA));
+    
+    // Load dữ liệu từ localStorage hoặc dùng mặc định
+    function loadEmbroideryData() {
+      const saved = localStorage.getItem('embroideryData');
+      if (saved) {
+        try {
+          currentEmbroideryData = JSON.parse(saved);
+          return currentEmbroideryData;
+        } catch (e) {
+          console.error('Error loading saved data:', e);
+        }
+      }
+      currentEmbroideryData = JSON.parse(JSON.stringify(DEFAULT_EMBROIDERY_DATA)); // Deep copy from default
+      saveEmbroideryData();
+      return currentEmbroideryData;
+    }
+    
+    // Lưu dữ liệu vào localStorage
+    function saveEmbroideryData() {
+      if (currentEmbroideryData) {
+        localStorage.setItem('embroideryData', JSON.stringify(currentEmbroideryData));
+      }
+    }
+    
+    // Khởi tạo dữ liệu
+    currentEmbroideryData = loadEmbroideryData();
+    
+    // Cập nhật EMBROIDERY_DATA để sử dụng dữ liệu đã lưu
+    Object.keys(currentEmbroideryData).forEach(key => {
+      EMBROIDERY_DATA[key] = currentEmbroideryData[key];
+    });
+    
+    // Admin Login
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+      // Auto focus và clear inputs
+      setTimeout(() => {
+        const usernameInput = document.getElementById('adminUsername');
+        const passwordInput = document.getElementById('adminPassword');
+        if (usernameInput) {
+          usernameInput.value = '';
+          usernameInput.focus();
+        }
+        if (passwordInput) {
+          passwordInput.value = '';
+        }
+      }, 100);
+    }
+    
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('adminUsername').value = '';
+      document.getElementById('adminPassword').value = '';
+    }
+    
+    window.adminLogin = () => {
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+      
+      if (!username || !password) {
+        showToast('Vui lòng nhập đầy đủ thông tin!', 'error');
+        return;
+      }
+      
+      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        isAdminLoggedIn = true;
+        localStorage.setItem('adminLoggedIn', 'true');
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('adminBtn').style.display = 'flex';
+        closeLoginModal();
+        showToast('Đăng nhập thành công! Bạn có thể chỉnh sửa kích thước sản phẩm và quản lý dữ liệu.', 'success');
+      } else {
+        showToast('Sai username hoặc password! Vui lòng thử lại.', 'error');
+        // Shake animation
+        const modal = document.getElementById('loginModal').querySelector('.modal-content');
+        if (modal) {
+          modal.style.animation = 'shake 0.5s';
+          setTimeout(() => {
+            modal.style.animation = '';
+          }, 500);
+        }
+      }
+    };
+    
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      localStorage.setItem('adminLoggedIn', 'false');
+      document.getElementById('loginBtn').style.display = 'flex';
+      document.getElementById('adminBtn').style.display = 'none';
+      closeAdminModal();
+      showToast('Đã đăng xuất', 'info');
+    }
+    
+    window.logoutAdmin = logoutAdmin;
+    
+    function openAdminModal() {
+      if (!isAdminLoggedIn) {
+        openLoginModal();
+        return;
+      }
+      document.getElementById('adminModal').style.display = 'flex';
+      loadAdminPanel();
+    }
+    
+    function closeAdminModal() {
+      document.getElementById('adminModal').style.display = 'none';
+    }
+    
+    function loadAdminPanel() {
+      const content = document.getElementById('adminContent');
+      const products = Object.keys(currentEmbroideryData);
+      
+      let html = '<div style="margin-bottom: 1.5rem;"><strong>Tổng số sản phẩm:</strong> ' + products.length + '</div>';
+      html += '<div class="utility-grid" style="grid-template-columns: 1fr;">';
+      
+      products.forEach((productName, idx) => {
+        const productData = currentEmbroideryData[productName];
+        html += `
+          <div class="utility-card" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin: 0; color: var(--accent-1);">${productName}</h3>
+              <div class="btn-group">
+                <button class="btn btn-secondary" onclick="editProduct('${productName.replace(/'/g, "\\'")}')" style="font-size: 0.8rem; padding: 0.5rem 1rem;"><i class="fas fa-edit"></i> Sửa</button>
+                <button class="btn btn-danger" onclick="deleteProduct('${productName.replace(/'/g, "\\'")}')" style="font-size: 0.8rem; padding: 0.5rem 1rem;"><i class="fas fa-trash"></i> Xóa</button>
+              </div>
+            </div>
+            <div style="max-height: 300px; overflow-y: auto;">
+              ${productData.map((block, blockIdx) => `
+                <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong>Khu vực: ${block.position} | Vị trí: ${block.cost}</strong>
+                    <div class="btn-group">
+                      <button class="btn btn-secondary" onclick="editPosition('${productName.replace(/'/g, "\\'")}', ${blockIdx})" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;"><i class="fas fa-edit"></i> Sửa</button>
+                      <button class="btn btn-danger" onclick="deletePosition('${productName.replace(/'/g, "\\'")}', ${blockIdx})" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;"><i class="fas fa-trash"></i> Xóa</button>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" onclick="addSizeToPosition('${productName.replace(/'/g, "\\'")}', ${blockIdx})" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; margin-bottom: 0.5rem;"><i class="fas fa-plus"></i> Thêm size</button>
+                  <table style="width: 100%; font-size: 0.85rem;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--border-color);">
+                        <th style="padding: 0.5rem; text-align: left;">Size</th>
+                        <th style="padding: 0.5rem; text-align: left;">Max H (mm)</th>
+                        <th style="padding: 0.5rem; text-align: left;">Max W (mm)</th>
+                        <th style="padding: 0.5rem; text-align: left;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${block.rows.map((row, rowIdx) => `
+                        <tr>
+                          <td style="padding: 0.5rem;">${row.size}</td>
+                          <td style="padding: 0.5rem;">${row.maxH}</td>
+                          <td style="padding: 0.5rem;">${row.maxW}</td>
+                          <td style="padding: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="editSize('${productName.replace(/'/g, "\\'")}', ${blockIdx}, ${rowIdx})" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" onclick="deleteSize('${productName.replace(/'/g, "\\'")}', ${blockIdx}, ${rowIdx})" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;"><i class="fas fa-trash"></i></button>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `).join('')}
+              <button class="btn btn-primary" onclick="addPosition('${productName.replace(/'/g, "\\'")}')" style="width: 100%; margin-top: 0.75rem; font-size: 0.85rem;"><i class="fas fa-plus"></i> Thêm Position</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      content.innerHTML = html;
+    }
+    
+    // ===== ADMIN CRUD FUNCTIONS =====
+    let currentEditingProduct = null;
+    let currentEditingBlockIdx = null;
+    let currentEditingRowIdx = null;
+    
+    window.showAddProductForm = () => {
+      currentEditingProduct = null;
+      document.getElementById('productFormTitle').innerHTML = '<i class="fas fa-plus"></i> Thêm sản phẩm mới';
+      document.getElementById('productNameInput').value = '';
+      document.getElementById('productFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('productNameInput').focus(), 100);
+    };
+    
+    window.closeProductForm = () => {
+      document.getElementById('productFormModal').style.display = 'none';
+      currentEditingProduct = null;
+    };
+    
+    window.saveProduct = () => {
+      const name = document.getElementById('productNameInput').value.trim();
+      if (!name) {
+        showToast('Vui lòng nhập tên sản phẩm', 'error');
+        return;
+      }
+      
+      if (currentEditingProduct === null) {
+        // Thêm mới
+        if (currentEmbroideryData[name]) {
+          showToast('Sản phẩm đã tồn tại!', 'error');
+          return;
+        }
+        currentEmbroideryData[name] = [];
+        EMBROIDERY_DATA[name] = [];
+        showToast('Đã thêm sản phẩm mới', 'success');
+      } else {
+        // Sửa tên
+        if (name !== currentEditingProduct && currentEmbroideryData[name]) {
+          showToast('Tên sản phẩm đã tồn tại!', 'error');
+          return;
+        }
+        if (name !== currentEditingProduct) {
+          currentEmbroideryData[name] = currentEmbroideryData[currentEditingProduct];
+          delete currentEmbroideryData[currentEditingProduct];
+          EMBROIDERY_DATA[name] = EMBROIDERY_DATA[currentEditingProduct];
+          delete EMBROIDERY_DATA[currentEditingProduct];
+          showToast('Đã đổi tên sản phẩm', 'success');
+        }
+      }
+      
+      saveEmbroideryData();
+      loadAdminPanel();
+      closeProductForm();
+      
+          // Reload embroidery tool if it's open
+          if (typeof loadEmbroideryTool === 'function') {
+            // Check if embroidery tool modal is open
+            const modal = document.getElementById('modalOverlay');
+            const productSelect = document.getElementById('productSelect');
+            if (modal && modal.classList.contains('active') && productSelect) {
+              // Modal is open, reload the entire tool
+              loadEmbroideryTool();
+            } else if (productSelect) {
+              // Just update product select if it exists
+              const allProducts = Object.keys(EMBROIDERY_DATA).sort();
+              productSelect.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' + 
+                allProducts.map(p => `<option value="${p}">${p}</option>`).join('');
+              if (currentEditingProduct === null && name) {
+                productSelect.value = name;
+                if (typeof selectProduct === 'function') {
+                  selectProduct(name);
+                }
+              } else if (currentEditingProduct && name !== currentEditingProduct) {
+                productSelect.value = name;
+                if (typeof selectProduct === 'function') {
+                  selectProduct(name);
+                }
+              }
+            }
+          }
+    };
+    
+    window.showAddProductFormFromTool = () => {
+      showAddProductForm();
+    };
+    
+    window.quickEditProductFromTool = (productName) => {
+      currentEditingProduct = productName;
+      document.getElementById('productFormTitle').innerHTML = '<i class="fas fa-edit"></i> Chỉnh sửa sản phẩm';
+      document.getElementById('productNameInput').value = productName;
+      document.getElementById('productFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('productNameInput').focus(), 100);
+    };
+    
+    window.quickDeleteProductFromTool = (productName) => {
+      if (!confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${productName}"?`)) {
+        return;
+      }
+      
+      if (currentEmbroideryData[productName]) {
+        delete currentEmbroideryData[productName];
+        delete EMBROIDERY_DATA[productName];
+        saveEmbroideryData();
+        showToast(`Đã xóa sản phẩm "${productName}"`, 'success');
+        
+        // Reload embroidery tool
+        if (typeof loadEmbroideryTool === 'function') {
+          loadEmbroideryTool();
+        }
+      }
+    };
+    
+    window.editProduct = (productName) => {
+      currentEditingProduct = productName;
+      document.getElementById('productFormTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa sản phẩm';
+      document.getElementById('productNameInput').value = productName;
+      document.getElementById('productFormModal').style.display = 'flex';
+      setTimeout(() => {
+        const input = document.getElementById('productNameInput');
+        input.focus();
+        input.select();
+      }, 100);
+    };
+    
+    window.deleteProduct = (productName) => {
+      if (!confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`)) return;
+      
+      delete currentEmbroideryData[productName];
+      delete EMBROIDERY_DATA[productName];
+      saveEmbroideryData();
+      loadAdminPanel();
+      showToast('Đã xóa sản phẩm', 'success');
+    };
+    
+    window.addPosition = (productName) => {
+      currentEditingProduct = productName;
+      currentEditingBlockIdx = null;
+      document.getElementById('positionFormTitle').innerHTML = '<i class="fas fa-plus"></i> Thêm Position';
+      document.getElementById('positionInput').value = '';
+      document.getElementById('costInput').value = '';
+      document.getElementById('positionFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('positionInput').focus(), 100);
+    };
+    
+    window.closePositionForm = () => {
+      document.getElementById('positionFormModal').style.display = 'none';
+      currentEditingProduct = null;
+      currentEditingBlockIdx = null;
+    };
+    
+    window.savePosition = () => {
+      const position = document.getElementById('positionInput').value.trim();
+      const cost = document.getElementById('costInput').value.trim();
+      
+      if (!position || !cost) {
+        showToast('Vui lòng điền đầy đủ thông tin', 'error');
+        return;
+      }
+      
+      if (!currentEmbroideryData[currentEditingProduct]) return;
+      
+      if (currentEditingBlockIdx === null) {
+        // Thêm mới
+        currentEmbroideryData[currentEditingProduct].push({ position, cost, rows: [] });
+        showToast('Đã thêm Position', 'success');
+      } else {
+        // Sửa
+        const block = currentEmbroideryData[currentEditingProduct][currentEditingBlockIdx];
+        block.position = position;
+        block.cost = isNaN(cost) ? cost : parseInt(cost);
+        showToast('Đã sửa Position', 'success');
+      }
+      
+      EMBROIDERY_DATA[currentEditingProduct] = currentEmbroideryData[currentEditingProduct];
+      saveEmbroideryData();
+      loadAdminPanel();
+      closePositionForm();
+      
+      // Reload embroidery tool if it's open
+      if (typeof currentProduct !== 'undefined' && currentProduct && typeof renderEmbroideryResult === 'function') {
+        currentData = EMBROIDERY_DATA[currentProduct];
+        renderEmbroideryResult(currentProduct, currentData);
+      }
+    };
+    
+    window.editPosition = (productName, blockIdx) => {
+      const block = currentEmbroideryData[productName][blockIdx];
+      if (!block) return;
+      
+      currentEditingProduct = productName;
+      currentEditingBlockIdx = blockIdx;
+      document.getElementById('positionFormTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa Position';
+      document.getElementById('positionInput').value = block.position;
+      document.getElementById('costInput').value = block.cost;
+      document.getElementById('positionFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('positionInput').focus(), 100);
+    };
+    
+    window.deletePosition = (productName, blockIdx) => {
+      if (!confirm('Bạn có chắc muốn xóa Position này?')) return;
+      
+      currentEmbroideryData[productName].splice(blockIdx, 1);
+      EMBROIDERY_DATA[productName] = currentEmbroideryData[productName];
+      saveEmbroideryData();
+      loadAdminPanel();
+      showToast('Đã xóa Position', 'success');
+    };
+    
+    window.addSizeToPosition = (productName, blockIdx) => {
+      currentEditingProduct = productName;
+      currentEditingBlockIdx = blockIdx;
+      currentEditingRowIdx = null;
+      document.getElementById('sizeFormTitle').innerHTML = '<i class="fas fa-plus"></i> Thêm Size';
+      document.getElementById('sizeInput').value = '';
+      document.getElementById('maxHInput').value = '';
+      document.getElementById('maxWInput').value = '';
+      document.getElementById('sizeFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('sizeInput').focus(), 100);
+    };
+    
+    window.closeSizeForm = () => {
+      document.getElementById('sizeFormModal').style.display = 'none';
+      currentEditingProduct = null;
+      currentEditingBlockIdx = null;
+      currentEditingRowIdx = null;
+    };
+    
+    window.saveSize = () => {
+      const size = document.getElementById('sizeInput').value.trim();
+      const maxH = parseInt(document.getElementById('maxHInput').value);
+      const maxW = parseInt(document.getElementById('maxWInput').value);
+      
+      if (!size || isNaN(maxH) || isNaN(maxW)) {
+        showToast('Vui lòng điền đầy đủ thông tin', 'error');
+        return;
+      }
+      
+      const block = currentEmbroideryData[currentEditingProduct][currentEditingBlockIdx];
+      if (!block) return;
+      
+      if (currentEditingRowIdx === null) {
+        // Thêm mới
+        block.rows.push({ size, maxH, maxW });
+        showToast('Đã thêm size', 'success');
+      } else {
+        // Sửa
+        const row = block.rows[currentEditingRowIdx];
+        row.size = size;
+        row.maxH = maxH;
+        row.maxW = maxW;
+        showToast('Đã sửa size', 'success');
+      }
+      
+      EMBROIDERY_DATA[currentEditingProduct][currentEditingBlockIdx] = block;
+      saveEmbroideryData();
+      loadAdminPanel();
+      closeSizeForm();
+      
+      // Reload embroidery tool if it's open
+      if (typeof currentProduct !== 'undefined' && currentProduct && typeof renderEmbroideryResult === 'function') {
+        currentData = EMBROIDERY_DATA[currentProduct];
+        renderEmbroideryResult(currentProduct, currentData);
+      }
+    };
+    
+    window.editSize = (productName, blockIdx, rowIdx) => {
+      const row = currentEmbroideryData[productName][blockIdx].rows[rowIdx];
+      if (!row) return;
+      
+      currentEditingProduct = productName;
+      currentEditingBlockIdx = blockIdx;
+      currentEditingRowIdx = rowIdx;
+      document.getElementById('sizeFormTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa Size';
+      document.getElementById('sizeInput').value = row.size;
+      document.getElementById('maxHInput').value = row.maxH;
+      document.getElementById('maxWInput').value = row.maxW;
+      document.getElementById('sizeFormModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('sizeInput').focus(), 100);
+    };
+    
+    window.deleteSize = (productName, blockIdx, rowIdx) => {
+      if (!confirm('Bạn có chắc muốn xóa size này?')) return;
+      
+      currentEmbroideryData[productName][blockIdx].rows.splice(rowIdx, 1);
+      EMBROIDERY_DATA[productName][blockIdx] = currentEmbroideryData[productName][blockIdx];
+      saveEmbroideryData();
+      loadAdminPanel();
+      showToast('Đã xóa size', 'success');
+    };
+    
+    window.exportAdminData = () => {
+      const dataStr = JSON.stringify(currentEmbroideryData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'embroidery_data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Đã export dữ liệu', 'success');
+    };
+    
+    window.importAdminData = () => {
+      document.getElementById('importFile').click();
+    };
+    
+    window.handleImportFile = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          currentEmbroideryData = data;
+          Object.keys(data).forEach(key => {
+            EMBROIDERY_DATA[key] = data[key];
+          });
+          saveEmbroideryData();
+          loadAdminPanel();
+          showToast('Đã import dữ liệu', 'success');
+        } catch (err) {
+          showToast('Lỗi import dữ liệu: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    };
+    
+    window.resetToDefault = () => {
+      if (!confirm('Bạn có chắc muốn reset về dữ liệu mặc định? Dữ liệu hiện tại sẽ bị mất!')) return;
+      
+      localStorage.removeItem('embroideryData');
+      currentEmbroideryData = JSON.parse(JSON.stringify(DEFAULT_EMBROIDERY_DATA)); // Reset to original
+      Object.keys(EMBROIDERY_DATA).forEach(key => {
+        delete EMBROIDERY_DATA[key];
+      });
+      Object.keys(currentEmbroideryData).forEach(key => {
+        EMBROIDERY_DATA[key] = currentEmbroideryData[key];
+      });
+      saveEmbroideryData();
+      loadAdminPanel();
+      showToast('Đã reset về dữ liệu mặc định', 'success');
+    };
+    
+    // Event listeners
+    document.getElementById('loginBtn').addEventListener('click', openLoginModal);
+    document.getElementById('adminBtn').addEventListener('click', openAdminModal);
+    
+    // Check admin status on load
+    if (isAdminLoggedIn) {
+      document.getElementById('loginBtn').style.display = 'none';
+      document.getElementById('adminBtn').style.display = 'flex';
+    }
+    
+    // ===== TOAST FUNCTION =====
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> <span>${message}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // ===== MODAL SYSTEM =====
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const closeModal = document.getElementById('closeModal');
+    
+    function openModal(title, content) {
+      modalTitle.innerHTML = title;
+      modalBody.innerHTML = content;
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModalFunc() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    closeModal.addEventListener('click', closeModalFunc);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModalFunc();
+    });
+    
+    // ===== NAVIGATION =====
+    const toolNames = {
+      'dashboard': 'Trang chủ',
+      'embroidery': 'Tra cứu kích thước thêu',
+      'text': 'Xử lý văn bản',
+      'file': 'Xử lý file',
+      'image': 'Xử lý ảnh',
+      'utilities': 'Công cụ tiện ích',
+      'csv': 'Tải ảnh từ CSV'
+    };
+    
+    // Get sidebar elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    function updateActiveNav(tool) {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.tool === tool) {
+          item.classList.add('active');
+        }
+      });
+    }
+    
+    function updateHeaderTitle(tool) {
+      const headerTitle = document.getElementById('headerTitle');
+      if (headerTitle && toolNames[tool]) {
+        headerTitle.textContent = toolNames[tool];
+      }
+    }
+    
+    function showDashboard() {
+      document.getElementById('dashboardView').style.display = 'block';
+      updateActiveNav('dashboard');
+      updateHeaderTitle('dashboard');
+      // Close sidebar on mobile after selection
+      if (window.innerWidth <= 768 && sidebar && sidebarOverlay) {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+      }
+    }
+    
+    function loadTool(tool) {
+      if (tool === 'dashboard') {
+        showDashboard();
+        return;
+      }
+      
+      // Hide dashboard view
+      document.getElementById('dashboardView').style.display = 'none';
+      
+      // Update navigation
+      updateActiveNav(tool);
+      updateHeaderTitle(tool);
+      
+      // Close sidebar on mobile after selection
+      if (window.innerWidth <= 768 && sidebar && sidebarOverlay) {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+      }
+      
+      // Load tool
+      switch (tool) {
+        case 'embroidery':
+          loadEmbroideryTool();
+          break;
+        case 'text':
+          loadTextTool();
+          break;
+        case 'file':
+          loadFileTool();
+          break;
+        case 'image':
+          loadImageTool();
+          break;
+        case 'utilities':
+          loadUtilitiesTool();
+          break;
+        case 'csv':
+          loadCSVTool();
+          break;
+      }
+    }
+    
+    // Sidebar navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const tool = item.dataset.tool;
+        loadTool(tool);
+      });
+    });
+    
+    // Tool cards
+    document.querySelectorAll('.tool-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const tool = card.dataset.tool;
+        loadTool(tool);
+      });
+    });
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
+    if (mobileMenuToggle && sidebar && sidebarOverlay) {
+      mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+    
+      sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+      });
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && 
+            sidebar.classList.contains('open') && 
+            !sidebar.contains(e.target) && 
+            !mobileMenuToggle.contains(e.target)) {
+          sidebar.classList.remove('open');
+          sidebarOverlay.classList.remove('active');
+        }
+      });
+      
+      // Update sidebar overlay on window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('open');
+          sidebarOverlay.classList.remove('active');
+        }
+      });
+    }
+    
+    // ===== EMBROIDERY TOOL =====
+    let currentProduct = null;
+    let currentData = null;
+    let useMatrixView = false;
+    let useChartView = false;
+    
+    function loadEmbroideryTool() {
+      const allProducts = Object.keys(EMBROIDERY_DATA).sort();
+      const adminControls = isAdminLoggedIn ? `
+        <div style="margin-bottom: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(162, 155, 254, 0.1)); border-radius: var(--radius-sm); border: 2px solid var(--accent-1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-1);">
+              <i class="fas fa-user-shield"></i>
+              <strong style="font-size: 1rem;">Chế độ Admin - Quản lý sản phẩm</strong>
+            </div>
+            <button class="btn btn-primary" onclick="showAddProductFormFromTool()" style="font-size: 0.85rem; padding: 0.6rem 1.2rem;">
+              <i class="fas fa-plus"></i> Thêm sản phẩm mới
+            </button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; max-height: 200px; overflow-y: auto; padding: 0.5rem; background: var(--bg-card); border-radius: var(--radius-sm);">
+            ${allProducts.map(p => `
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <span style="font-size: 0.85rem; color: var(--text-primary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${p}">${p}</span>
+                <div style="display: flex; gap: 0.25rem;">
+                  <button onclick="quickEditProductFromTool('${p.replace(/'/g, "\\'")}')" style="padding: 0.25rem 0.5rem; background: var(--accent-3); border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.7rem;" title="Chỉnh sửa">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button onclick="quickDeleteProductFromTool('${p.replace(/'/g, "\\'")}')" style="padding: 0.25rem 0.5rem; background: var(--accent-1); border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 0.7rem;" title="Xóa">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : '';
+      
+      const content = `
+        ${adminControls}
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-search"></i>
+            <span>Tìm kiếm sản phẩm</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="search-wrapper" style="margin-bottom: 0;">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" class="search-input" id="embSearch" placeholder="Nhập tên sản phẩm để tìm kiếm...">
+              <div class="suggestions" id="suggestions"></div>
+            </div>
+            <select id="productSelect" class="search-input" style="min-width: 200px; padding: 0.75rem; cursor: pointer;">
+              <option value="">-- Chọn sản phẩm --</option>
+              ${allProducts.map(p => `<option value="${p}">${p}</option>`).join('')}
+            </select>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-info-circle" style="color: var(--accent-1);"></i>
+              <span>Tổng: <strong>${allProducts.length}</strong> sản phẩm</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-sliders-h"></i>
+            <span>Tùy chọn xem</span>
+          </div>
+          <div class="tool-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+            <button class="btn btn-secondary" id="toggleMatrix" style="justify-content: center; padding: 0.75rem; font-size: 0.8rem;"><i class="fas fa-table"></i> Bảng</button>
+            <button class="btn btn-secondary" id="toggleChart" style="justify-content: center; padding: 0.75rem; font-size: 0.8rem;"><i class="fas fa-chart-bar"></i> Biểu đồ</button>
+            <button class="btn btn-secondary" id="exportCSV" style="justify-content: center; padding: 0.75rem; font-size: 0.8rem;"><i class="fas fa-download"></i> CSV</button>
+            <button class="btn btn-secondary" id="exportPDF" style="justify-content: center; padding: 0.75rem; font-size: 0.8rem;"><i class="fas fa-file-pdf"></i> PDF</button>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-filter"></i>
+            <span>Lọc theo kích thước</span>
+          </div>
+          <div class="chips-container" id="chipsContainer"></div>
+        </div>
+        
+        <div id="embResults"></div>
+      `;
+      openModal('<i class="fas fa-ruler-combined"></i> Tra cứu kích thước thêu', content);
+      
+      const searchInput = document.getElementById('embSearch');
+      const productSelect = document.getElementById('productSelect');
+      const suggestions = document.getElementById('suggestions');
+      const chipsContainer = document.getElementById('chipsContainer');
+      const results = document.getElementById('embResults');
+      
+      // Select dropdown handler
+      productSelect.addEventListener('change', (e) => {
+        const selectedProduct = e.target.value;
+        if (selectedProduct) {
+          searchInput.value = selectedProduct;
+          suggestions.style.display = 'none';
+          currentProduct = selectedProduct;
+          currentData = EMBROIDERY_DATA[selectedProduct];
+          renderEmbroideryResult(selectedProduct, currentData);
+        }
+      });
+      
+      // Search input handler with improved suggestions
+      searchInput.addEventListener('input', debounce(() => {
+        const query = searchInput.value.trim().toLowerCase();
+        if (!query) {
+          suggestions.style.display = 'none';
+          productSelect.value = '';
+          return;
+        }
+        
+        const matches = Object.keys(EMBROIDERY_DATA).filter(key => 
+          norm(key).includes(norm(query))
+        ).slice(0, 8);
+        
+        if (matches.length > 0) {
+          suggestions.innerHTML = matches.map(key => {
+            const highlighted = key.replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>');
+            return `<div class="suggestion-item" onclick="selectProduct('${key.replace(/'/g, "\\'")}')">${highlighted}</div>`;
+          }).join('');
+          suggestions.style.display = 'block';
+        } else {
+          suggestions.innerHTML = '<div class="suggestion-item" style="color: var(--text-muted); cursor: default;">Không tìm thấy sản phẩm</div>';
+          suggestions.style.display = 'block';
+        }
+      }, 150));
+      
+      // Keyboard navigation for suggestions
+      searchInput.addEventListener('keydown', (e) => {
+        const items = suggestions.querySelectorAll('.suggestion-item');
+        const current = suggestions.querySelector('.suggestion-item.highlighted');
+        
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (current) {
+            current.classList.remove('highlighted');
+            const next = current.nextElementSibling;
+            if (next) next.classList.add('highlighted');
+            else if (items[0]) items[0].classList.add('highlighted');
+          } else if (items[0]) {
+            items[0].classList.add('highlighted');
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (current) {
+            current.classList.remove('highlighted');
+            const prev = current.previousElementSibling;
+            if (prev) prev.classList.add('highlighted');
+            else if (items[items.length - 1]) items[items.length - 1].classList.add('highlighted');
+          }
+        } else if (e.key === 'Enter' && current) {
+          e.preventDefault();
+          current.click();
+        } else if (e.key === 'Escape') {
+          suggestions.style.display = 'none';
+        }
+      });
+      
+      window.selectProduct = (productName) => {
+        searchInput.value = productName;
+        productSelect.value = productName;
+        suggestions.style.display = 'none';
+        currentProduct = productName;
+        currentData = EMBROIDERY_DATA[productName];
+        renderEmbroideryResult(productName, currentData);
+      };
+      
+      // Toggle Matrix View
+      document.getElementById('toggleMatrix').addEventListener('click', () => {
+        useMatrixView = !useMatrixView;
+        useChartView = false;
+        if (currentProduct && currentData) {
+          renderEmbroideryResult(currentProduct, currentData);
+        }
+      });
+      
+      // Toggle Chart View
+      document.getElementById('toggleChart').addEventListener('click', () => {
+        useChartView = !useChartView;
+        useMatrixView = false;
+        if (currentProduct && currentData) {
+          renderEmbroideryResult(currentProduct, currentData);
+        }
+      });
+      
+      // Export CSV
+      document.getElementById('exportCSV').addEventListener('click', () => {
+        if (!currentProduct || !currentData) {
+          showToast('Vui lòng chọn sản phẩm trước', 'error');
+          return;
+        }
+        let csv = 'Khu vực,Vị trí,Size,Max Height (mm),Max Width (mm)\n';
+        currentData.forEach(block => {
+          block.rows.forEach(row => {
+            csv += `${block.position},${block.cost},${row.size},${row.maxH},${row.maxW}\n`;
+          });
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${currentProduct.replace(/[^a-z0-9]/gi, '_')}.csv`;
+        link.click();
+        showToast('Đã xuất CSV', 'success');
+      });
+      
+      // Export PDF
+      document.getElementById('exportPDF').addEventListener('click', () => {
+        if (!currentProduct || !currentData) {
+          showToast('Vui lòng chọn sản phẩm trước', 'error');
+          return;
+        }
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          doc.setFontSize(16);
+          doc.text(`${currentProduct} - Kích thước thêu`, 14, 20);
+          doc.setFontSize(10);
+          const tableData = currentData.flatMap(b => b.rows.map(r => [b.position, b.cost, r.size, `${r.maxH}×${r.maxW}mm`]));
+          doc.autoTable({
+            head: [['Khu vực', 'Vị trí', 'Kích cỡ', 'Kích thước']],
+            body: tableData,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [102, 126, 234] }
+          });
+          doc.save(`${currentProduct.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+          showToast('Đã xuất PDF', 'success');
+        } catch (e) {
+          showToast('Lỗi xuất PDF: ' + e.message, 'error');
+        }
+      });
+      
+      function renderEmbroideryResult(productName, data) {
+        const allSizes = new Set();
+        data.forEach(block => {
+          block.rows.forEach(row => allSizes.add(row.size));
+        });
+        const sizes = [...allSizes].sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+        
+        chipsContainer.innerHTML = '';
+        const allChip = document.createElement('div');
+        allChip.className = 'chip active';
+        allChip.textContent = 'Tất cả';
+        allChip.onclick = () => filterBySize('All');
+        chipsContainer.appendChild(allChip);
+        
+        sizes.forEach(size => {
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = size;
+          chip.onclick = () => filterBySize(size);
+          chipsContainer.appendChild(chip);
+        });
+        
+        // Chart View - Compact
+        if (useChartView && typeof Chart !== 'undefined') {
+          results.innerHTML = `<div class="tool-section" style="margin-top: 0;"><div style="padding: 1rem;"><canvas id="chartCanvas" style="max-height: 350px;"></canvas></div></div>`;
+          setTimeout(() => {
+            const canvas = document.getElementById('chartCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (window.chartInstance) window.chartInstance.destroy();
+            window.chartInstance = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: sizes,
+                datasets: [{
+                  label: 'Max Height (mm)',
+                  data: sizes.map(s => {
+                    const rows = data.flatMap(b => b.rows.filter(r => r.size === s));
+                    return rows.length ? rows.reduce((sum, r) => sum + r.maxH, 0) / rows.length : 0;
+                  }),
+                  backgroundColor: 'rgba(102, 126, 234, 0.6)'
+                }, {
+                  label: 'Max Width (mm)',
+                  data: sizes.map(s => {
+                    const rows = data.flatMap(b => b.rows.filter(r => r.size === s));
+                    return rows.length ? rows.reduce((sum, r) => sum + r.maxW, 0) / rows.length : 0;
+                  }),
+                  backgroundColor: 'rgba(118, 75, 162, 0.6)'
+                }]
+              },
+              options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true } } }
+            });
+          }, 100);
+          return;
+        }
+        
+        // Matrix View - Compact
+        if (useMatrixView) {
+          let html = `
+            <div class="tool-section" style="margin-top: 0;">
+              <div class="table-wrapper">
+                <table class="compact-table">
+                  <thead>
+                    <tr>
+                    <th>Khu vực</th>
+                    <th>Vị trí</th>
+                    ${sizes.map(s => `<th>${s}</th>`).join('')}
+                    ${isAdminLoggedIn ? '<th style="width: 100px;">Thao tác</th>' : ''}
+                    </tr>
+                  </thead>
+                  <tbody id="embTableBody">
+          `;
+          
+          data.forEach((block, blockIdx) => {
+            html += `<tr><td><strong>${block.position}</strong></td><td>${block.cost}</td>`;
+            sizes.forEach(size => {
+              const row = block.rows.find(r => r.size === size);
+              html += `<td><strong>${row ? `${row.maxH}×${row.maxW}` : '–'}</strong></td>`;
+            });
+            if (isAdminLoggedIn) {
+              html += `<td>
+                <button class="btn btn-secondary" onclick="quickEditPosition('${productName.replace(/'/g, "\\'")}', ${blockIdx})" 
+                  style="font-size: 0.7rem; padding: 0.25rem 0.5rem;" title="Chỉnh sửa Position">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>`;
+            }
+            html += `</tr>`;
+          });
+          
+          html += `</tbody></table></div></div>`;
+          results.innerHTML = html;
+          return;
+        }
+        
+        // Normal View - Compact
+        let html = `
+          <div class="tool-section" style="margin-top: 0;">
+            ${isAdminLoggedIn ? `
+              <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="quickAddPosition('${productName.replace(/'/g, "\\'")}')" 
+                  style="font-size: 0.8rem; padding: 0.5rem 1rem;">
+                  <i class="fas fa-plus"></i> Thêm Position
+                </button>
+              </div>
+            ` : ''}
+            <div class="table-wrapper">
+              <table class="compact-table">
+                <thead>
+                  <tr>
+                    <th>Khu vực</th>
+                    <th>Vị trí</th>
+                    <th>Size</th>
+                    <th>Kích thước (mm)</th>
+                    ${isAdminLoggedIn ? '<th style="width: 120px;">Thao tác</th>' : ''}
+                  </tr>
+                </thead>
+                <tbody id="embTableBody">
+        `;
+        
+        data.forEach((block, blockIdx) => {
+          block.rows.forEach((row, rowIdx) => {
+            const editBtn = isAdminLoggedIn ? `
+              <td>
+                <button class="btn btn-secondary" onclick="quickEditSize('${productName.replace(/'/g, "\\'")}', ${blockIdx}, ${rowIdx})" 
+                  style="font-size: 0.7rem; padding: 0.25rem 0.5rem;" title="Chỉnh sửa">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+            ` : '';
+            html += `
+              <tr data-size="${row.size}">
+                <td><strong>${block.position}</strong></td>
+                <td>${block.cost}</td>
+                <td>${row.size}</td>
+                <td><strong>${row.maxH} × ${row.maxW}</strong></td>
+                ${editBtn}
+              </tr>
+            `;
+          });
+          
+          // Add "Add Size" button after each position block
+          if (isAdminLoggedIn && block.rows.length > 0) {
+            html += `
+              <tr style="background: var(--bg-secondary);">
+                <td colspan="${isAdminLoggedIn ? '5' : '4'}" style="padding: 0.5rem;">
+                  <button class="btn btn-primary" onclick="quickAddSize('${productName.replace(/'/g, "\\'")}', ${blockIdx})" 
+                    style="font-size: 0.75rem; padding: 0.375rem 0.75rem;">
+                    <i class="fas fa-plus"></i> Thêm Size cho ${block.position} - ${block.cost}
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+        });
+        
+        html += `</tbody></table></div></div>`;
+        results.innerHTML = html;
+      }
+      
+      window.filterBySize = (size) => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
+        document.querySelectorAll('#embTableBody tr').forEach(tr => {
+          tr.style.display = (size === 'All' || tr.dataset.size === size) ? '' : 'none';
+        });
+      };
+      
+      // Quick edit functions for embroidery tool
+      window.quickEditSize = (productName, blockIdx, rowIdx) => {
+        const row = currentEmbroideryData[productName][blockIdx].rows[rowIdx];
+        if (!row) return;
+        
+        currentEditingProduct = productName;
+        currentEditingBlockIdx = blockIdx;
+        currentEditingRowIdx = rowIdx;
+        document.getElementById('sizeFormTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa Size';
+        document.getElementById('sizeInput').value = row.size;
+        document.getElementById('maxHInput').value = row.maxH;
+        document.getElementById('maxWInput').value = row.maxW;
+        document.getElementById('sizeFormModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('sizeInput').focus(), 100);
+      };
+      
+      window.quickEditPosition = (productName, blockIdx) => {
+        const block = currentEmbroideryData[productName][blockIdx];
+        if (!block) return;
+        
+        currentEditingProduct = productName;
+        currentEditingBlockIdx = blockIdx;
+        document.getElementById('positionFormTitle').innerHTML = '<i class="fas fa-edit"></i> Sửa Position';
+        document.getElementById('positionInput').value = block.position;
+        document.getElementById('costInput').value = block.cost;
+        document.getElementById('positionFormModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('positionInput').focus(), 100);
+      };
+      
+      window.quickAddPosition = (productName) => {
+        currentEditingProduct = productName;
+        currentEditingBlockIdx = null;
+        document.getElementById('positionFormTitle').innerHTML = '<i class="fas fa-plus"></i> Thêm Position';
+        document.getElementById('positionInput').value = '';
+        document.getElementById('costInput').value = '';
+        document.getElementById('positionFormModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('positionInput').focus(), 100);
+      };
+      
+      window.quickAddSize = (productName, blockIdx) => {
+        currentEditingProduct = productName;
+        currentEditingBlockIdx = blockIdx;
+        currentEditingRowIdx = null;
+        document.getElementById('sizeFormTitle').innerHTML = '<i class="fas fa-plus"></i> Thêm Size';
+        document.getElementById('sizeInput').value = '';
+        document.getElementById('maxHInput').value = '';
+        document.getElementById('maxWInput').value = '';
+        document.getElementById('sizeFormModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('sizeInput').focus(), 100);
+      };
+    }
+    
+    // ===== TEXT TOOL =====
+    function loadTextTool() {
+      const content = `
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-edit"></i>
+            <span>Nhập văn bản</span>
+          </div>
+          <textarea id="textInput" placeholder="Nhập văn bản cần xử lý..." style="min-height: 200px; font-size: 1rem; line-height: 1.6;"></textarea>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-magic"></i>
+            <span>Chuyển đổi định dạng</span>
+          </div>
+          <div class="tool-grid">
+            <button class="btn btn-primary" onclick="textToUpper()" style="padding: 1rem; justify-content: center;"><i class="fas fa-font"></i> IN HOA</button>
+            <button class="btn btn-primary" onclick="textToTitle()" style="padding: 1rem; justify-content: center;"><i class="fas fa-text-height"></i> Chữ Cái Đầu</button>
+            <button class="btn btn-primary" onclick="textToLower()" style="padding: 1rem; justify-content: center;"><i class="fas fa-font"></i> chữ thường</button>
+            <button class="btn btn-secondary" onclick="copyText()" style="padding: 1rem; justify-content: center;"><i class="fas fa-copy"></i> Sao chép</button>
+            <button class="btn btn-secondary" onclick="clearText()" style="padding: 1rem; justify-content: center;"><i class="fas fa-trash"></i> Xóa</button>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-chart-line"></i>
+            <span>Thống kê văn bản</span>
+          </div>
+          <div class="stats-card">
+            <div class="stat-item">
+              <span class="stat-value" id="charCount">0</span>
+              <span class="stat-label">Ký tự</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="wordCount">0</span>
+              <span class="stat-label">Từ</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="lineCount">0</span>
+              <span class="stat-label">Dòng</span>
+            </div>
+          </div>
+        </div>
+      `;
+      openModal('<i class="fas fa-font"></i> Xử lý văn bản', content);
+      
+      const textInput = document.getElementById('textInput');
+      textInput.addEventListener('input', updateTextStats);
+      
+      function updateTextStats() {
+        const text = textInput.value;
+        document.getElementById('charCount').textContent = text.length;
+        document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+        document.getElementById('lineCount').textContent = text.split('\n').length;
+      }
+      
+      window.textToUpper = () => { textInput.value = textInput.value.toUpperCase(); updateTextStats(); showToast('Đã chuyển sang chữ hoa', 'success'); };
+      window.textToLower = () => { textInput.value = textInput.value.toLowerCase(); updateTextStats(); showToast('Đã chuyển sang chữ thường', 'success'); };
+      window.textToTitle = () => { textInput.value = textInput.value.replace(/\b\w/g, l => l.toUpperCase()); updateTextStats(); showToast('Đã chuyển sang chữ cái đầu hoa', 'success'); };
+      window.copyText = () => { textInput.select(); document.execCommand('copy'); showToast('Đã sao chép vào clipboard', 'success'); };
+      window.clearText = () => { textInput.value = ''; updateTextStats(); showToast('Đã xóa', 'success'); };
+    }
+    
+    // ===== FILE TOOL =====
+    function loadFileTool() {
+      const content = `
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Tải file lên</span>
+          </div>
+          <div class="drop-zone" id="fileDropZone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Kéo thả file vào đây hoặc click để chọn</p>
+            <input type="file" id="fileInput" multiple style="display: none;">
+          </div>
+        </div>
+        
+        <div class="tool-section" id="fileListSection" style="display: none;">
+          <div class="tool-section-title">
+            <i class="fas fa-list"></i>
+            <span>Danh sách file</span>
+          </div>
+          <div id="fileList"></div>
+        </div>
+      `;
+      openModal('<i class="fas fa-file"></i> Xử lý file', content);
+      
+      const dropZone = document.getElementById('fileDropZone');
+      const fileInput = document.getElementById('fileInput');
+      const fileList = document.getElementById('fileList');
+      
+      dropZone.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+      });
+      fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+      
+      function handleFiles(files) {
+        const fileListSection = document.getElementById('fileListSection');
+        fileListSection.style.display = 'block';
+        fileList.innerHTML = '';
+        Array.from(files).forEach((file, index) => {
+          const div = document.createElement('div');
+          div.style.padding = '1.25rem';
+          div.style.background = 'var(--bg-secondary)';
+          div.style.borderRadius = 'var(--radius-sm)';
+          div.style.marginBottom = '0.75rem';
+          div.style.border = '1px solid var(--border)';
+          div.style.display = 'flex';
+          div.style.alignItems = 'center';
+          div.style.justifyContent = 'space-between';
+          div.style.gap = '1rem';
+          div.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <i class="fas fa-file" style="font-size: 1.5rem; color: var(--accent-1);"></i>
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">${file.name}</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">${(file.size / 1024).toFixed(2)} KB</div>
+              </div>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">#${index + 1}</div>
+          `;
+          fileList.appendChild(div);
+        });
+        showToast(`Đã tải ${files.length} file(s)`, 'success');
+      }
+    }
+    
+    // ===== IMAGE TOOL =====
+    let originalImageData = null;
+    let currentImageCanvas = null;
+    let currentImageCtx = null;
+    
+    function loadImageTool() {
+      const content = `
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-upload"></i>
+            <span>Tải ảnh lên</span>
+          </div>
+          <div class="drop-zone" id="imageDropZone">
+            <i class="fas fa-image"></i>
+            <p>Kéo thả ảnh vào đây hoặc click để chọn</p>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          </div>
+        </div>
+        
+        <div id="imagePreview" style="display: none;">
+          <div class="tool-section">
+            <div class="tool-section-title">
+              <i class="fas fa-images"></i>
+              <span>Xem trước ảnh</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+              <div class="input-group">
+                <label>Ảnh gốc</label>
+                <img id="originalImg" style="width: 100%; border-radius: var(--radius-sm); border: 2px solid var(--border);">
+              </div>
+              <div class="input-group">
+                <label>Ảnh đã xử lý</label>
+                <canvas id="processedCanvas" style="width: 100%; border-radius: var(--radius-sm); border: 2px solid var(--border); display: none;"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tool-section">
+            <div class="tool-section-title">
+              <i class="fas fa-tools"></i>
+              <span>Công cụ chỉnh sửa</span>
+            </div>
+            <div class="tool-grid">
+              <div class="utility-card">
+                <h4><i class="fas fa-expand-arrows-alt"></i> Resize</h4>
+                <div class="input-group">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <input type="number" id="resizeWidth" placeholder="Width (px)">
+                    <input type="number" id="resizeHeight" placeholder="Height (px)">
+                  </div>
+                  <label style="font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <input type="checkbox" id="maintainAspect" checked> Giữ tỷ lệ
+                  </label>
+                  <button class="btn btn-primary" onclick="resizeImage()" style="width: 100%;">Resize</button>
+                </div>
+              </div>
+              
+              <div class="utility-card">
+                <h4><i class="fas fa-compress"></i> Compress</h4>
+                <div class="input-group">
+                  <label style="font-size: 0.9rem;">Chất lượng: <span id="qualityVal">80</span>%</label>
+                  <input type="range" id="compressQuality" min="10" max="100" value="80" style="margin: 0.75rem 0;">
+                  <select id="compressFormat" style="margin-bottom: 0.75rem;">
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WebP</option>
+                  </select>
+                  <button class="btn btn-primary" onclick="compressImage()" style="width: 100%;">Compress</button>
+                </div>
+              </div>
+              
+              <div class="utility-card">
+                <h4><i class="fas fa-crop"></i> Crop</h4>
+                <div class="input-group">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <input type="number" id="cropX" value="0" placeholder="X">
+                    <input type="number" id="cropY" value="0" placeholder="Y">
+                    <input type="number" id="cropW" placeholder="Width">
+                    <input type="number" id="cropH" placeholder="Height">
+                  </div>
+                  <button class="btn btn-primary" onclick="cropImage()" style="width: 100%;">Crop</button>
+                </div>
+              </div>
+              
+              <div class="utility-card">
+                <h4><i class="fas fa-redo"></i> Rotate & Flip</h4>
+                <div class="btn-group" style="grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                  <button class="btn btn-secondary" onclick="rotateImage(90)">↻ 90°</button>
+                  <button class="btn btn-secondary" onclick="rotateImage(180)">↻ 180°</button>
+                  <button class="btn btn-secondary" onclick="flipImage('h')">↔ H</button>
+                  <button class="btn btn-secondary" onclick="flipImage('v')">↕ V</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tool-section">
+            <div class="btn-group" style="justify-content: center;">
+              <button class="btn btn-primary" onclick="downloadImage()" style="padding: 1rem 2rem;"><i class="fas fa-download"></i> Tải ảnh</button>
+              <button class="btn btn-secondary" onclick="resetImage()" style="padding: 1rem 2rem;"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+          </div>
+        </div>
+      `;
+      openModal('<i class="fas fa-image"></i> Xử lý ảnh', content);
+      
+      const dropZone = document.getElementById('imageDropZone');
+      const imageInput = document.getElementById('imageInput');
+      const preview = document.getElementById('imagePreview');
+      const originalImg = document.getElementById('originalImg');
+      const processedCanvas = document.getElementById('processedCanvas');
+      
+      dropZone.addEventListener('click', () => imageInput.click());
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleImage(e.dataTransfer.files[0]);
+      });
+      imageInput.addEventListener('change', (e) => handleImage(e.target.files[0]));
+      
+      document.getElementById('compressQuality').addEventListener('input', (e) => {
+        document.getElementById('qualityVal').textContent = e.target.value;
+      });
+      
+      function handleImage(file) {
+        if (!file || !file.type.startsWith('image/')) {
+          showToast('Vui lòng chọn file ảnh', 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          originalImageData = e.target.result;
+          originalImg.src = originalImageData;
+          
+          const img = new Image();
+          img.onload = () => {
+            processedCanvas.width = img.width;
+            processedCanvas.height = img.height;
+            currentImageCanvas = processedCanvas;
+            currentImageCtx = processedCanvas.getContext('2d');
+            currentImageCtx.drawImage(img, 0, 0);
+            processedCanvas.style.display = 'block';
+            preview.style.display = 'block';
+            showToast('Đã tải ảnh', 'success');
+          };
+          img.src = originalImageData;
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      window.resizeImage = () => {
+        if (!currentImageCanvas || !originalImageData) return;
+        const img = new Image();
+        img.onload = () => {
+          let width = parseInt(document.getElementById('resizeWidth').value) || img.width;
+          let height = parseInt(document.getElementById('resizeHeight').value) || img.height;
+          const maintain = document.getElementById('maintainAspect').checked;
+          
+          if (maintain && document.getElementById('resizeWidth').value && !document.getElementById('resizeHeight').value) {
+            height = (width / img.width) * img.height;
+          } else if (maintain && document.getElementById('resizeHeight').value && !document.getElementById('resizeWidth').value) {
+            width = (height / img.height) * img.width;
+          } else if (maintain) {
+            const ratio = Math.min(width / img.width, height / img.height);
+            width = img.width * ratio;
+            height = img.height * ratio;
+          }
+          
+          currentImageCanvas.width = width;
+          currentImageCanvas.height = height;
+          currentImageCtx.drawImage(img, 0, 0, width, height);
+          showToast('Đã resize ảnh', 'success');
+        };
+        img.src = originalImageData;
+      };
+      
+      window.compressImage = () => {
+        if (!currentImageCanvas) return;
+        const quality = parseInt(document.getElementById('compressQuality').value) / 100;
+        const format = document.getElementById('compressFormat').value;
+        const dataUrl = currentImageCanvas.toDataURL(`image/${format}`, quality);
+        
+        const img = new Image();
+        img.onload = () => {
+          currentImageCanvas.width = img.width;
+          currentImageCanvas.height = img.height;
+          currentImageCtx.clearRect(0, 0, currentImageCanvas.width, currentImageCanvas.height);
+          currentImageCtx.drawImage(img, 0, 0);
+          showToast('Đã compress ảnh', 'success');
+        };
+        img.src = dataUrl;
+      };
+      
+      window.cropImage = () => {
+        if (!currentImageCanvas || !originalImageData) return;
+        const img = new Image();
+        img.onload = () => {
+          const x = parseInt(document.getElementById('cropX').value) || 0;
+          const y = parseInt(document.getElementById('cropY').value) || 0;
+          const w = parseInt(document.getElementById('cropW').value) || img.width - x;
+          const h = parseInt(document.getElementById('cropH').value) || img.height - y;
+          
+          currentImageCanvas.width = w;
+          currentImageCanvas.height = h;
+          currentImageCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
+          showToast('Đã crop ảnh', 'success');
+        };
+        img.src = originalImageData;
+      };
+      
+      window.rotateImage = (degrees) => {
+        if (!currentImageCanvas || !originalImageData) return;
+        const img = new Image();
+        img.onload = () => {
+          const rad = (degrees * Math.PI) / 180;
+          const w = Math.abs(Math.cos(rad) * img.width) + Math.abs(Math.sin(rad) * img.height);
+          const h = Math.abs(Math.sin(rad) * img.width) + Math.abs(Math.cos(rad) * img.height);
+          
+          currentImageCanvas.width = w;
+          currentImageCanvas.height = h;
+          currentImageCtx.translate(w / 2, h / 2);
+          currentImageCtx.rotate(rad);
+          currentImageCtx.drawImage(img, -img.width / 2, -img.height / 2);
+          currentImageCtx.setTransform(1, 0, 0, 1, 0, 0);
+          showToast(`Đã xoay ${degrees}°`, 'success');
+        };
+        img.src = currentImageCanvas.toDataURL();
+      };
+      
+      window.flipImage = (direction) => {
+        if (!currentImageCanvas || !originalImageData) return;
+        const img = new Image();
+        img.onload = () => {
+          currentImageCanvas.width = img.width;
+          currentImageCanvas.height = img.height;
+          if (direction === 'h') {
+            currentImageCtx.translate(img.width, 0);
+            currentImageCtx.scale(-1, 1);
+          } else {
+            currentImageCtx.translate(0, img.height);
+            currentImageCtx.scale(1, -1);
+          }
+          currentImageCtx.drawImage(img, 0, 0);
+          currentImageCtx.setTransform(1, 0, 0, 1, 0, 0);
+          showToast('Đã flip ảnh', 'success');
+        };
+        img.src = currentImageCanvas.toDataURL();
+      };
+      
+      window.downloadImage = () => {
+        if (!currentImageCanvas) return;
+        const a = document.createElement('a');
+        a.href = currentImageCanvas.toDataURL();
+        a.download = 'processed_image.png';
+        a.click();
+        showToast('Đã tải ảnh', 'success');
+      };
+      
+      window.resetImage = () => {
+        originalImageData = null;
+        currentImageCanvas = null;
+        currentImageCtx = null;
+        preview.style.display = 'none';
+        imageInput.value = '';
+        document.getElementById('resizeWidth').value = '';
+        document.getElementById('resizeHeight').value = '';
+        document.getElementById('cropX').value = '0';
+        document.getElementById('cropY').value = '0';
+        document.getElementById('cropW').value = '';
+        document.getElementById('cropH').value = '';
+      };
+    }
+    
+    // ===== UTILITIES TOOL =====
+    function loadUtilitiesTool() {
+      const content = `
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-qrcode"></i>
+            <span>QR Code Generator</span>
+          </div>
+          <div class="input-group">
+            <input type="text" id="qrInput" placeholder="Nhập text hoặc URL...">
+            <button class="btn btn-primary" onclick="generateQR()" style="width: 100%; margin-top: 0.75rem;">Tạo QR Code</button>
+            <div id="qrResult" style="margin-top: 1rem; text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-sm);"></div>
+            <button class="btn btn-secondary" onclick="downloadQR()" id="downloadQR" style="width: 100%; margin-top: 0.75rem; display: none;"><i class="fas fa-download"></i> Tải QR Code</button>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-key"></i>
+            <span>Password Generator</span>
+          </div>
+          <div class="input-group">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <label>Độ dài:</label>
+              <input type="number" id="pwdLength" value="16" min="4" max="128">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <input type="checkbox" id="pwdUpper" checked> Chữ hoa
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <input type="checkbox" id="pwdLower" checked> Chữ thường
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <input type="checkbox" id="pwdNumber" checked> Số
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <input type="checkbox" id="pwdSymbol"> Ký tự đặc biệt
+              </label>
+            </div>
+            <input type="text" id="pwdOutput" readonly placeholder="Password sẽ hiển thị ở đây..." style="margin-bottom: 0.75rem;">
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="generatePassword()" style="flex: 1;">Tạo</button>
+              <button class="btn btn-secondary" onclick="copyPassword()" style="flex: 1;"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-code"></i>
+            <span>Base64 Encode/Decode</span>
+          </div>
+          <div class="input-group">
+            <textarea id="base64Input" rows="4" placeholder="Nhập text..."></textarea>
+            <div class="btn-group" style="margin: 0.75rem 0;">
+              <button class="btn btn-primary" onclick="encodeBase64()">Encode</button>
+              <button class="btn btn-secondary" onclick="decodeBase64()">Decode</button>
+            </div>
+            <textarea id="base64Output" rows="4" readonly placeholder="Kết quả..."></textarea>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-file-code"></i>
+            <span>JSON Formatter</span>
+          </div>
+          <div class="input-group">
+            <textarea id="jsonInput" rows="5" placeholder="Nhập JSON..." style="font-family: monospace; font-size: 0.9rem;"></textarea>
+            <div class="btn-group" style="margin: 0.75rem 0;">
+              <button class="btn btn-primary" onclick="formatJSON()">Format</button>
+              <button class="btn btn-secondary" onclick="minifyJSON()">Minify</button>
+              <button class="btn btn-secondary" onclick="validateJSON()">Validate</button>
+            </div>
+            <textarea id="jsonOutput" rows="5" readonly placeholder="Kết quả..." style="font-family: monospace; font-size: 0.9rem;"></textarea>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-link"></i>
+            <span>URL Encode/Decode</span>
+          </div>
+          <div class="input-group">
+            <textarea id="urlInput" rows="3" placeholder="Nhập URL hoặc text..."></textarea>
+            <div class="btn-group" style="margin: 0.75rem 0;">
+              <button class="btn btn-primary" onclick="encodeURL()">Encode</button>
+              <button class="btn btn-secondary" onclick="decodeURL()">Decode</button>
+            </div>
+            <textarea id="urlOutput" rows="3" readonly placeholder="Kết quả..."></textarea>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-clock"></i>
+            <span>Timestamp Converter</span>
+          </div>
+          <div class="input-group">
+            <input type="number" id="timestampInput" placeholder="Nhập timestamp (Unix)...">
+            <div class="btn-group" style="margin: 0.75rem 0;">
+              <button class="btn btn-primary" onclick="convertTimestamp()" style="flex: 1;">Chuyển đổi</button>
+              <button class="btn btn-secondary" onclick="getCurrentTimestamp()" style="flex: 1;">Lấy hiện tại</button>
+            </div>
+            <div id="timestampOutput" style="padding: 1.25rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <div style="margin-bottom: 0.5rem;"><strong>Date:</strong> <span id="timestampDate">-</span></div>
+              <div><strong>ISO:</strong> <span id="timestampISO">-</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-palette"></i>
+            <span>Color Converter</span>
+          </div>
+          <div class="input-group">
+            <input type="text" id="colorInput" placeholder="HEX (#FF5733) hoặc RGB (255,87,51)...">
+            <button class="btn btn-primary" onclick="convertColor()" style="width: 100%; margin: 0.75rem 0;">Chuyển đổi</button>
+            <div id="colorPreview" style="width: 100%; height: 60px; border-radius: var(--radius-sm); border: 2px solid var(--border); margin-bottom: 0.75rem;"></div>
+            <div id="colorOutput" style="padding: 1.25rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <div style="margin-bottom: 0.5rem;"><strong>HEX:</strong> <span id="colorHEX">-</span></div>
+              <div style="margin-bottom: 0.5rem;"><strong>RGB:</strong> <span id="colorRGB">-</span></div>
+              <div><strong>HSL:</strong> <span id="colorHSL">-</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-hashtag"></i>
+            <span>UUID Generator</span>
+          </div>
+          <div class="input-group">
+            <input type="text" id="uuidOutput" readonly placeholder="UUID sẽ hiển thị ở đây...">
+            <div class="btn-group" style="margin: 0.75rem 0;">
+              <button class="btn btn-primary" onclick="generateUUID()" style="flex: 1;">Tạo UUID</button>
+              <button class="btn btn-secondary" onclick="copyUUID()" style="flex: 1;"><i class="fas fa-copy"></i></button>
+            </div>
+            <button class="btn btn-secondary" onclick="generateMultipleUUID()" style="width: 100%;">Tạo 5 UUID</button>
+            <div id="uuidList" style="margin-top: 0.75rem; max-height: 150px; overflow-y: auto; font-size: 0.85rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);"></div>
+          </div>
+        </div>
+      `;
+      openModal('<i class="fas fa-tools"></i> Công cụ tiện ích', content);
+      
+      window.generateQR = () => {
+        const text = document.getElementById('qrInput').value;
+        if (!text) { showToast('Vui lòng nhập text', 'error'); return; }
+        const canvas = document.createElement('canvas');
+        QRCode.toCanvas(canvas, text, { width: 200 }, (err) => {
+          if (err) { showToast('Lỗi tạo QR Code', 'error'); return; }
+          document.getElementById('qrResult').innerHTML = '';
+          document.getElementById('qrResult').appendChild(canvas);
+          document.getElementById('downloadQR').style.display = 'block';
+          window.qrCanvas = canvas;
+          showToast('Đã tạo QR Code', 'success');
+        });
+      };
+      
+      window.downloadQR = () => {
+        if (!window.qrCanvas) return;
+        const link = document.createElement('a');
+        link.href = window.qrCanvas.toDataURL();
+        link.download = 'qrcode.png';
+        link.click();
+        showToast('Đã tải QR Code', 'success');
+      };
+      
+      window.generatePassword = () => {
+        const length = parseInt(document.getElementById('pwdLength').value) || 16;
+        let chars = '';
+        if (document.getElementById('pwdUpper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if (document.getElementById('pwdLower').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+        if (document.getElementById('pwdNumber').checked) chars += '0123456789';
+        if (document.getElementById('pwdSymbol').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+        if (!chars) { showToast('Chọn ít nhất một loại ký tự', 'error'); return; }
+        let password = '';
+        for (let i = 0; i < length; i++) {
+          password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('pwdOutput').value = password;
+        window.currentPassword = password;
+        showToast('Đã tạo password', 'success');
+      };
+      
+      window.copyPassword = () => {
+        const pwd = document.getElementById('pwdOutput').value;
+        if (!pwd) { showToast('Tạo password trước', 'error'); return; }
+        navigator.clipboard.writeText(pwd);
+        showToast('Đã copy password', 'success');
+      };
+      
+      window.encodeBase64 = () => {
+        const input = document.getElementById('base64Input').value;
+        document.getElementById('base64Output').value = btoa(unescape(encodeURIComponent(input)));
+        showToast('Đã encode', 'success');
+      };
+      
+      window.decodeBase64 = () => {
+        try {
+          const input = document.getElementById('base64Input').value;
+          document.getElementById('base64Output').value = decodeURIComponent(escape(atob(input)));
+          showToast('Đã decode', 'success');
+        } catch (e) {
+          showToast('Lỗi decode', 'error');
+        }
+      };
+      
+      window.formatJSON = () => {
+        try {
+          const input = document.getElementById('jsonInput').value;
+          const obj = JSON.parse(input);
+          document.getElementById('jsonOutput').value = JSON.stringify(obj, null, 2);
+          showToast('Đã format JSON', 'success');
+        } catch (e) {
+          showToast('Lỗi format JSON: ' + e.message, 'error');
+        }
+      };
+      
+      window.minifyJSON = () => {
+        try {
+          const input = document.getElementById('jsonInput').value;
+          const obj = JSON.parse(input);
+          document.getElementById('jsonOutput').value = JSON.stringify(obj);
+          showToast('Đã minify JSON', 'success');
+        } catch (e) {
+          showToast('Lỗi minify JSON: ' + e.message, 'error');
+        }
+      };
+      
+      window.validateJSON = () => {
+        try {
+          const input = document.getElementById('jsonInput').value;
+          JSON.parse(input);
+          showToast('JSON hợp lệ', 'success');
+        } catch (e) {
+          showToast('JSON không hợp lệ: ' + e.message, 'error');
+        }
+      };
+      
+      window.encodeURL = () => {
+        const input = document.getElementById('urlInput').value;
+        document.getElementById('urlOutput').value = encodeURIComponent(input);
+        showToast('Đã encode URL', 'success');
+      };
+      
+      window.decodeURL = () => {
+        try {
+          const input = document.getElementById('urlInput').value;
+          document.getElementById('urlOutput').value = decodeURIComponent(input);
+          showToast('Đã decode URL', 'success');
+        } catch (e) {
+          showToast('Lỗi decode URL', 'error');
+        }
+      };
+      
+      window.convertTimestamp = () => {
+        const timestamp = parseInt(document.getElementById('timestampInput').value);
+        if (!timestamp) { showToast('Nhập timestamp', 'error'); return; }
+        const date = new Date(timestamp * 1000);
+        document.getElementById('timestampDate').textContent = date.toLocaleString('vi-VN');
+        document.getElementById('timestampISO').textContent = date.toISOString();
+        showToast('Đã chuyển đổi timestamp', 'success');
+      };
+      
+      window.getCurrentTimestamp = () => {
+        const timestamp = Math.floor(Date.now() / 1000);
+        document.getElementById('timestampInput').value = timestamp;
+        convertTimestamp();
+      };
+      
+      window.convertColor = () => {
+        const input = document.getElementById('colorInput').value.trim();
+        if (!input) { showToast('Nhập màu', 'error'); return; }
+        
+        let r, g, b;
+        if (input.startsWith('#')) {
+          const hex = input.slice(1);
+          r = parseInt(hex.slice(0, 2), 16);
+          g = parseInt(hex.slice(2, 4), 16);
+          b = parseInt(hex.slice(4, 6), 16);
+        } else if (input.includes(',')) {
+          const rgb = input.split(',').map(n => parseInt(n.trim()));
+          r = rgb[0]; g = rgb[1]; b = rgb[2];
+        } else {
+          showToast('Định dạng không hợp lệ', 'error');
+          return;
+        }
+        
+        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        const hsl = rgbToHsl(r, g, b);
+        
+        document.getElementById('colorHEX').textContent = hex;
+        document.getElementById('colorRGB').textContent = `rgb(${r}, ${g}, ${b})`;
+        document.getElementById('colorHSL').textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+        document.getElementById('colorPreview').style.background = hex;
+        showToast('Đã chuyển đổi màu', 'success');
+      };
+      
+      function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) {
+          h = s = 0;
+        } else {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+          }
+        }
+        return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+      }
+      
+      window.generateUUID = () => {
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+        document.getElementById('uuidOutput').value = uuid;
+        window.currentUUID = uuid;
+        showToast('Đã tạo UUID', 'success');
+      };
+      
+      window.copyUUID = () => {
+        const uuid = document.getElementById('uuidOutput').value;
+        if (!uuid) { showToast('Tạo UUID trước', 'error'); return; }
+        navigator.clipboard.writeText(uuid);
+        showToast('Đã copy UUID', 'success');
+      };
+      
+      window.generateMultipleUUID = () => {
+        const list = document.getElementById('uuidList');
+        list.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
+          const div = document.createElement('div');
+          div.style.padding = '0.5rem';
+          div.style.marginBottom = '0.25rem';
+          div.style.background = 'var(--bg-hover)';
+          div.style.borderRadius = 'var(--radius-sm)';
+          div.style.cursor = 'pointer';
+          div.textContent = uuid;
+          div.onclick = () => {
+            navigator.clipboard.writeText(uuid);
+            showToast('Đã copy UUID', 'success');
+          };
+          list.appendChild(div);
+        }
+        showToast('Đã tạo 5 UUID', 'success');
+      };
+    }
+    
+    // ===== CSV TOOL =====
+    let csvData = null;
+    let downloadProgress = 0;
+    
+    function loadCSVTool() {
+      const content = `
+        <div class="tool-section">
+          <div class="tool-section-title">
+            <i class="fas fa-upload"></i>
+            <span>Tải file CSV</span>
+          </div>
+          <div class="drop-zone" id="csvDropZone">
+            <i class="fas fa-file-csv"></i>
+            <p>Kéo thả file CSV vào đây hoặc click để chọn</p>
+            <input type="file" id="csvFile" accept=".csv" style="display: none;">
+          </div>
+          <div style="margin-top: 1.25rem; padding: 1rem; background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(108, 92, 231, 0.1)); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+              <i class="fas fa-info-circle" style="color: var(--accent-1); margin-right: 0.5rem;"></i>
+              Công cụ sẽ tự động tìm các cột <strong>'PO'</strong>, <strong>'Item ID'</strong>, <strong>'Size'</strong>, và <strong>'Artwork Front'</strong> để tải ảnh với tên dạng <strong>PO_ItemID_Size.png</strong>
+            </p>
+          </div>
+        </div>
+        
+        <div class="tool-section" id="csvConfigSection" style="display: none;">
+          <div class="tool-section-title">
+            <i class="fas fa-cog"></i>
+            <span>Cấu hình tải xuống</span>
+          </div>
+          <div class="input-group">
+            <label>Thư mục con để lưu (tùy chọn)</label>
+            <input type="text" id="subfolderPath" placeholder="Ví dụ: images/products">
+          </div>
+          <button class="btn btn-primary" id="startDownload" onclick="startDownloadImages()" style="width: 100%; margin-top: 1rem; padding: 1rem;" disabled>
+            <i class="fas fa-download"></i> Bắt đầu tải ảnh
+          </button>
+        </div>
+        
+        <div class="tool-section" id="csvProgressSection" style="display: none;">
+          <div class="tool-section-title">
+            <i class="fas fa-tasks"></i>
+            <span>Tiến trình tải xuống</span>
+          </div>
+          <div id="progressBar" style="width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
+            <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, var(--accent-1), var(--accent-2)); width: 0%; transition: width 0.3s ease;"></div>
+          </div>
+          <div id="csvStatus" style="padding: 1.25rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 300px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6;"></div>
+        </div>
+      `;
+      openModal('<i class="fas fa-table"></i> Tải ảnh từ CSV', content);
+      
+      const dropZone = document.getElementById('csvDropZone');
+      const csvFile = document.getElementById('csvFile');
+      const status = document.getElementById('csvStatus');
+      const startBtn = document.getElementById('startDownload');
+      
+      dropZone.addEventListener('click', () => csvFile.click());
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleCSV(e.dataTransfer.files[0]);
+      });
+      csvFile.addEventListener('change', (e) => handleCSV(e.target.files[0]));
+      
+      function handleCSV(file) {
+        if (!file || !file.name.endsWith('.csv')) {
+          showToast('Vui lòng chọn file CSV', 'error');
+          return;
+        }
+        Papa.parse(file, {
+          header: true,
+          complete: (results) => {
+            document.getElementById('csvConfigSection').style.display = 'block';
+            csvData = results.data.filter(row => row && Object.keys(row).length > 0);
+            document.getElementById('csvProgressSection').style.display = 'block';
+            status.innerHTML = `<strong>Đã đọc ${csvData.length} dòng từ file CSV</strong><br>`;
+            
+            if (csvData.length > 0) {
+              const cols = Object.keys(csvData[0]);
+              const poCol = cols.find(c => c.toLowerCase().includes('po'));
+              const itemCol = cols.find(c => c.toLowerCase().includes('item') || c.toLowerCase().includes('id'));
+              const sizeCol = cols.find(c => c.toLowerCase().includes('size'));
+              const imgCol = cols.find(c => c.toLowerCase().includes('artwork') || c.toLowerCase().includes('front') || c.toLowerCase().includes('image'));
+              
+              status.innerHTML += `<div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-card); border-radius: var(--radius-sm);"><strong>Các cột tìm thấy:</strong><br>`;
+              status.innerHTML += `PO: ${poCol || 'Không tìm thấy'}<br>`;
+              status.innerHTML += `Item ID: ${itemCol || 'Không tìm thấy'}<br>`;
+              status.innerHTML += `Size: ${sizeCol || 'Không tìm thấy'}<br>`;
+              status.innerHTML += `Artwork: ${imgCol || 'Không tìm thấy'}</div>`;
+              
+              if (poCol && itemCol && imgCol) {
+                startBtn.disabled = false;
+                const sizeWarning = sizeCol ? '' : '<br><small style="opacity: 0.8;">⚠ Size không bắt buộc, sẽ dùng tên PO_ItemID nếu thiếu</small>';
+                status.innerHTML += `<div style="margin-top: 0.75rem; padding: 0.75rem; background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(108, 92, 231, 0.15)); border-radius: var(--radius-sm); border: 1px solid var(--accent-1); color: var(--accent-1);"><strong>✓ Sẵn sàng tải ảnh!</strong>${sizeWarning}</div>`;
+              } else {
+                status.innerHTML += `<div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(255, 107, 107, 0.1); border-radius: var(--radius-sm); border: 1px solid var(--accent-1); color: var(--accent-1);"><strong>⚠ Thiếu một số cột cần thiết</strong></div>`;
+              }
+            }
+            showToast('Đã đọc file CSV thành công', 'success');
+          },
+          error: (err) => {
+            showToast('Lỗi đọc file CSV: ' + err.message, 'error');
+          }
+        });
+      }
+      
+      window.startDownloadImages = async () => {
+        if (!csvData || csvData.length === 0) {
+          showToast('Chưa có dữ liệu CSV', 'error');
+          return;
+        }
+        
+        const cols = Object.keys(csvData[0]);
+        const poCol = cols.find(c => c.toLowerCase().includes('po'));
+        const itemCol = cols.find(c => c.toLowerCase().includes('item') || c.toLowerCase().includes('id'));
+        const sizeCol = cols.find(c => c.toLowerCase().includes('size'));
+        const imgCol = cols.find(c => c.toLowerCase().includes('artwork') || c.toLowerCase().includes('front') || c.toLowerCase().includes('image'));
+        
+        if (!poCol || !itemCol || !imgCol) {
+          showToast('Thiếu các cột cần thiết', 'error');
+          return;
+        }
+        
+        const subfolder = document.getElementById('subfolderPath').value.trim() || '';
+        document.getElementById('csvProgressSection').style.display = 'block';
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const status = document.getElementById('csvStatus');
+        
+        status.innerHTML = '<strong>Đang tải ảnh...</strong><br>';
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let i = 0; i < csvData.length; i++) {
+          const row = csvData[i];
+          const po = (row[poCol] || '').toString().trim();
+          const itemId = (row[itemCol] || '').toString().trim();
+          const size = sizeCol ? (row[sizeCol] || '').toString().trim() : '';
+          const imgUrl = (row[imgCol] || '').toString().trim();
+          
+          if (!po || !itemId || !imgUrl) {
+            failCount++;
+            status.innerHTML += `<span style="color: var(--danger);">Dòng ${i + 1}: Thiếu dữ liệu</span><br>`;
+            continue;
+          }
+          
+          // Tạo tên file: PO_ItemID_Size hoặc PO_ItemID nếu không có Size
+          const fileName = size 
+            ? `${po}_${itemId}_${size}`.replace(/[^a-z0-9_]/gi, '_')
+            : `${po}_${itemId}`.replace(/[^a-z0-9_]/gi, '_');
+          
+          try {
+            const response = await fetch(imgUrl);
+            if (!response.ok) throw new Error('Failed to fetch');
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = subfolder ? `${subfolder}/${fileName}.png` : `${fileName}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+            successCount++;
+            status.innerHTML += `<span style="color: var(--accent-2);">Dòng ${i + 1}: Đã tải ${fileName}.png</span><br>`;
+          } catch (e) {
+            failCount++;
+            status.innerHTML += `<span style="color: var(--danger);">Dòng ${i + 1}: Lỗi - ${fileName || po + '_' + itemId}</span><br>`;
+          }
+          
+          progressFill.style.width = ((i + 1) / csvData.length * 100) + '%';
+          status.scrollTop = status.scrollHeight;
+        }
+        
+        progressBar.style.display = 'none';
+        status.innerHTML += `<div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-card); border-radius: var(--radius-sm);"><strong>Hoàn thành!</strong><br>Thành công: ${successCount}<br>Thất bại: ${failCount}</div>`;
+        showToast(`Đã tải ${successCount}/${csvData.length} ảnh`, successCount > 0 ? 'success' : 'error');
+      };
+    }
+    
+    // ===== THEME TOGGLE =====
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.classList.toggle('light', savedTheme === 'light');
+    themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      themeToggle.querySelector('i').className = isLight ? 'fas fa-moon' : 'fas fa-sun';
+      showToast('Đã chuyển sang ' + (isLight ? 'chế độ sáng' : 'chế độ tối'), 'success');
+    });
+    
+    // ===== FULLSCREEN TOGGLE =====
+    document.getElementById('fullscreenToggle').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        showToast('Đã vào chế độ toàn màn hình', 'success');
+      } else {
+        document.exitFullscreen();
+        showToast('Đã thoát chế độ toàn màn hình', 'info');
+      }
+    });
+    
+    // ===== CHAT SYSTEM =====
+    const FUNNY_ANIMAL_NAMES = [
+      'Chú Cá Vàng Hài Hước', 'Bạn Gấu Trúc Dễ Thương', 'Anh Khỉ Đột Vui Tính', 
+      'Cô Mèo Lười Biếng', 'Chú Chó Con Nghịch Ngợm', 'Bạn Vịt Con Ngốc Nghếch',
+      'Anh Hươu Cao Cổ Lạc Lõng', 'Cô Thỏ Hồng Nhí Nhảnh', 'Chú Lợn Con Mập Mạp',
+      'Bạn Gà Trống Tinh Nghịch', 'Anh Cá Heo Thông Minh', 'Cô Chim Cánh Cụt Dễ Thương',
+      'Chú Hà Mã Dễ Thương', 'Bạn Sư Tử Oai Phong', 'Anh Hổ Vằn Mạnh Mẽ',
+      'Cô Bướm Xinh Đẹp', 'Chú Ong Chăm Chỉ', 'Bạn Nhím Gai Nhọn',
+      'Anh Rùa Chậm Chạp', 'Cô Cá Sấu Hung Dữ', 'Chú Kangaroo Nhảy Nhót',
+      'Bạn Đà Điểu Chạy Nhanh', 'Anh Gấu Bắc Cực Lạnh Lẽo', 'Cô Hải Cẩu Dễ Thương'
+    ];
+    
+    let currentUserName = localStorage.getItem('chatUserName');
+    if (!currentUserName) {
+      currentUserName = FUNNY_ANIMAL_NAMES[Math.floor(Math.random() * FUNNY_ANIMAL_NAMES.length)];
+      localStorage.setItem('chatUserName', currentUserName);
+    }
+    
+    let chatMessages = [];
+    let chatLastReset = localStorage.getItem('chatLastReset');
+    const CHAT_RESET_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
+    // Check if chat needs reset (24 hours passed)
+    function checkChatReset() {
+      const now = Date.now();
+      if (!chatLastReset || (now - parseInt(chatLastReset)) > CHAT_RESET_INTERVAL) {
+        chatMessages = [];
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        localStorage.setItem('chatLastReset', now.toString());
+        chatLastReset = now.toString();
+      }
+    }
+    
+    // Load chat messages
+    function loadChatMessages() {
+      checkChatReset();
+      const saved = localStorage.getItem('chatMessages');
+      if (saved) {
+        try {
+          chatMessages = JSON.parse(saved);
+        } catch (e) {
+          chatMessages = [];
+        }
+      }
+      renderChatMessages();
+    }
+    
+    // Save chat messages
+    function saveChatMessages() {
+      localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+    }
+    
+    // Render chat messages
+    function renderChatMessages() {
+      const container = document.getElementById('chatMessages');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      if (chatMessages.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.9rem;">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</div>';
+        return;
+      }
+      
+      chatMessages.forEach(msg => {
+        const isOwn = msg.userName === currentUserName;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${isOwn ? 'own' : 'other'}`;
+        
+        const time = new Date(msg.timestamp);
+        const timeStr = time.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+          <div class="chat-message-header">
+            <span class="chat-message-name">${msg.userName}</span>
+            <span class="chat-message-time">${timeStr}</span>
+          </div>
+          <div class="chat-message-content">${msg.text}</div>
+        `;
+        
+        container.appendChild(messageDiv);
+      });
+      
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    // Send chat message
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      
+      if (!text) return;
+      
+      const message = {
+        userName: currentUserName,
+        text: text,
+        timestamp: Date.now()
+      };
+      
+      chatMessages.push(message);
+      saveChatMessages();
+      renderChatMessages();
+      
+      input.value = '';
+      input.focus();
+      
+      // Update badge
+      updateChatBadge();
+    }
+    
+    // Toggle chat
+    function toggleChat() {
+      const container = document.getElementById('chatContainer');
+      if (container) {
+        container.classList.toggle('open');
+        if (container.classList.contains('open')) {
+          document.getElementById('chatInput').focus();
+          updateChatBadge();
+        }
+      }
+    }
+    
+    // Update chat badge
+    function updateChatBadge() {
+      const badge = document.getElementById('chatBadge');
+      if (badge) {
+        const unreadCount = chatMessages.length;
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+    
+    // Initialize chat
+    function initChat() {
+      loadChatMessages();
+      updateChatBadge();
+      
+      // Chat toggle button
+      const toggleBtn = document.getElementById('chatToggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleChat);
+      }
+      
+      // Chat close button
+      const closeBtn = document.getElementById('chatClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', toggleChat);
+      }
+      
+      // Chat send button
+      const sendBtn = document.getElementById('chatSend');
+      if (sendBtn) {
+        sendBtn.addEventListener('click', sendChatMessage);
+      }
+      
+      // Chat input enter key
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            sendChatMessage();
+          }
+        });
+      }
+    }
+    
+    // ===== INITIALIZE =====
+    document.body.classList.add('loaded');
+    setTimeout(() => showToast('Chào mừng đến TX Workspace!', 'success'), 500);
+    
+    // Initialize chat after DOM is ready
+    setTimeout(initChat, 100);
+  </script>
+</body>
+</html>
