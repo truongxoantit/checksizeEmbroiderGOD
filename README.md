@@ -55,10 +55,10 @@
 
 ```
 web/
-├── workspace.html          # File chính - giao diện mới hoàn chỉnh
-├── index.html              # File gốc - Embroidery Size Checker
-├── code1.html              # File gốc - Image Processor
-├── code2.html              # File gốc - Embroidery Data
+├── index.html              # File chính - Trang web chính (GitHub Pages)
+├── workspace.html          # File backup - Giao diện mới hoàn chỉnh
+├── .nojekyll              # Tắt Jekyll cho GitHub Pages
+├── .gitignore             # Git ignore file
 ├── lib/                    # Thư viện và assets
 │   ├── css/               # Stylesheets
 │   ├── js/                # JavaScript libraries
@@ -86,16 +86,37 @@ web/
 
 ## 📖 Cách sử dụng
 
-1. Mở file `workspace.html` trong trình duyệt
-2. Chọn công cụ cần dùng từ grid
+### Sử dụng trực tiếp trên GitHub Pages
+
+🌐 **Truy cập website**: https://truongxoantit.github.io/checksizeEmbroiderGOD/
+
+1. Mở website trên trình duyệt
+2. Chọn công cụ cần dùng từ sidebar hoặc dashboard
 3. Công cụ sẽ mở trong modal overlay
 4. Sử dụng các tính năng và đóng modal khi xong
 
+### Sử dụng local
+
+1. Clone repository về máy
+2. Mở file `index.html` trong trình duyệt
+3. Hoặc sử dụng local server (ví dụ: `python -m http.server`)
+
+## 🌐 GitHub Pages Setup
+
+Website đã được cấu hình sẵn cho GitHub Pages:
+
+1. Repository đã có file `index.html` và `.nojekyll`
+2. Vào **Settings** → **Pages** trong repository
+3. Chọn branch **master** và folder **/ (root)**
+4. Save và đợi vài phút để GitHub Pages deploy
+5. Website sẽ có tại: `https://[username].github.io/checksizeEmbroiderGOD/`
+
 ## 📝 Lưu ý
 
-- File `workspace.html` là file chính với giao diện mới hoàn chỉnh
-- Các file `index.html`, `code1.html`, `code2.html` là file gốc để tham khảo
+- File `index.html` là file chính cho GitHub Pages
+- File `workspace.html` là file backup
 - Tất cả dữ liệu được lưu trữ local trong browser (localStorage)
+- Website hoạt động hoàn toàn offline sau lần tải đầu tiên
 
 ## 📄 License
 
